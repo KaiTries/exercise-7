@@ -5,7 +5,7 @@ from environment import Environment
     beta: a parameter controlling the influence of the distance to the next node during ants' path selection process
 """
 class Ant():
-    def __init__(self, alpha: float, beta: float, initial_location):
+    def __init__(self, alpha: float, beta: float, initial_location: int):
         self.alpha = alpha
         self.beta = beta
         self.current_location = initial_location
@@ -14,7 +14,12 @@ class Ant():
 
        # The ant runs to visit all the possible locations of the environment 
     def run(self):
-        pass
+        while len(self.visited < 48):
+            next_node = self.select_path()
+            self.travelled_distance += self.get_distance(next_node)
+            self.visited.append(next_node)
+            self.current_location = next_node
+        
 
     # Select the next path based on the random proportional rule of the ACO algorithm
     def select_path(self):
@@ -35,8 +40,8 @@ class Ant():
         return max(not_yet_visited, key=lambda x: not_yet_visited[x]["probability"])
 
 
-    def get_cost():
-        pass
+    def get_cost(self):
+        return self.travelled_distance
 
     # Position an ant in an environment
     def join(self, environment: Environment):
@@ -44,5 +49,5 @@ class Ant():
         self.select_path()
 
     # Get the pseudo-euclidean distance between current location and the destination vertex
-    def get_distance(self, destination_vertex: int):
-        return self.environment.get_distance(self.current_location, destination_vertex)
+    def get_distance(self, j: int):
+        return self.environment.get_distance(self.current_location, j)

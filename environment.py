@@ -1,13 +1,14 @@
 import math
 import random
 import tsplib95
+from ant import Ant
 
 # Class representing the environment of the ant colony
 """
     rho: pheromone evaporation rate
 """
 class Environment:
-    def __init__(self, rho, ant_population):
+    def __init__(self, rho: float, ant_population: int):
 
         self.rho =rho
         self.population = ant_population
@@ -19,7 +20,7 @@ class Environment:
     
 
     # Intialize the pheromone trails in the environment
-    def initialize_pheromone_map(self):
+    def initialize_pheromone_map(self) -> None:
         # C^nn is the expected cost of a tour generated using a nearest neighbour heuristic
         current_node = random.randint(1,48)
         starting_node = current_node
@@ -52,7 +53,7 @@ class Environment:
             
 
     # Update the pheromone trails in the environment
-    def update_pheromone_map(self, ants: list):
+    def update_pheromone_map(self, ants: list[Ant]) -> None:
         # Step 1: Pheromone is first removed from all arcs (pheromone evaporation):
         for edge in self.environment.edges():
             self.environment[edge[0]][edge[1]]["pheromone_level"] *= (1- self.rho)
@@ -60,7 +61,7 @@ class Environment:
         # Step 2: Pheromone is then added on the arcs the ants have crossed in their tours:
         for ant in ants:
             for edge in ant.get_tour():
-                self.environment[edge[0]][edge[1]]["pheromone_level"] += 1 / ant.get_cost()
+                self.environment[edge[0]][edge[1]]["pheromone_level"] += 1 / ant.travelled_distance
 
     # Get the pheromone trails in the environment
     def get_pheromone_map(self):
@@ -71,5 +72,5 @@ class Environment:
         return self.environment[current_location]
     
     # Get the pseudo-euclidean distance between two vertices
-    def get_distance(self, i: int, j: int):
+    def get_distance(self, i: int, j: int) -> int:
         return self.environment[i][j]["weight"]
