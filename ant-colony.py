@@ -48,12 +48,16 @@ class AntColony:
 
         # we doing x amount of rounds
         for _ in range(0,self.iterations):
+            # each ant runs its path
             for ant in self.ants:
                 ant.run()
+                # if an ant found a new shortest path we set it
                 if ant.travelled_distance < shortest_distance:
                     solution = ant.visited
                     shortest_distance = ant.travelled_distance
+            # update the pheromone map
             self.environment.update_pheromone_map(self.ants)
+            # reset the memory of the ants (distance travelled and citys visited)
             for ant in self.ants:
                 ant.reset_ant()
 
@@ -64,7 +68,7 @@ class AntColony:
 
 def main():
     # Intialize the ant colony
-    ant_colony = AntColony(1, 100, 1, 2, 0.5)
+    ant_colony = AntColony(48, 100, 1, 2, 0.5)
 
     # Solve the ant colony optimization problem
     solution, distance = ant_colony.solve()
