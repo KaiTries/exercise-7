@@ -40,19 +40,29 @@ class AntColony:
 
     # Solve the ant colony optimization problem  
     def solve(self):
-
         # The solution will be a list of the visited cities
         solution = []
 
         # Initially, the shortest distance is set to infinite
         shortest_distance = np.inf
 
+        # we doing x amount of rounds
+        for _ in range(0,self.iterations):
+            for ant in self.ants:
+                ant.run()
+                if ant.travelled_distance < shortest_distance:
+                    solution = ant.visited
+                    shortest_distance = ant.travelled_distance
+            self.environment.update_pheromone_map(self.ants)
+
+
+
         return solution, shortest_distance
 
 
 def main():
     # Intialize the ant colony
-    ant_colony = AntColony(1, 48, 1, 2, 0.5)
+    ant_colony = AntColony(1, 5000, 1, 2, 0.5)
 
     # Solve the ant colony optimization problem
     solution, distance = ant_colony.solve()

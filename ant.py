@@ -1,4 +1,3 @@
-from environment import Environment
 # Class representing an artificial ant of the ant colony
 """
     alpha: a parameter controlling the influence of the amount of pheromone during ants' path selection process
@@ -14,7 +13,7 @@ class Ant():
 
        # The ant runs to visit all the possible locations of the environment 
     def run(self):
-        while len(self.visited < 48):
+        while len(self.visited) < 48:
             next_node = self.select_path()
             self.travelled_distance += self.get_distance(next_node)
             self.visited.append(next_node)
@@ -48,7 +47,7 @@ class Ant():
         return self.travelled_distance
 
     # Position an ant in an environment
-    def join(self, environment: Environment):
+    def join(self, environment):
         self.environment = environment
         self.select_path()
 

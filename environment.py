@@ -1,7 +1,6 @@
 import math
 import random
 import tsplib95
-from ant import Ant
 
 # Class representing the environment of the ant colony
 """
@@ -53,15 +52,15 @@ class Environment:
             
 
     # Update the pheromone trails in the environment
-    def update_pheromone_map(self, ants: list[Ant]) -> None:
+    def update_pheromone_map(self, ants: list) -> None:
         # Step 1: Pheromone is first removed from all arcs (pheromone evaporation):
         for edge in self.environment.edges():
             self.environment[edge[0]][edge[1]]["pheromone_level"] *= (1- self.rho)
 
         # Step 2: Pheromone is then added on the arcs the ants have crossed in their tours:
         for ant in ants:
-            for edge in ant.get_tour():
-                self.environment[edge[0]][edge[1]]["pheromone_level"] += 1 / ant.travelled_distance
+            for edge in ant.visited:
+                self.environment[edge][(edge+1) % len(ant.visited)+1]["pheromone_level"] += 1 / ant.travelled_distance
 
     # Get the pheromone trails in the environment
     def get_pheromone_map(self):
