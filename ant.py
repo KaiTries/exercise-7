@@ -35,6 +35,9 @@ class Ant():
         return max(not_yet_visited, key=lambda x: not_yet_visited[x]["probability"])
 
 
+    def get_cost():
+        pass
+
     # Position an ant in an environment
     def join(self, environment: Environment):
         self.environment = environment

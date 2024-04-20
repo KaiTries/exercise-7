@@ -58,11 +58,9 @@ class Environment:
             self.environment[edge[0]][edge[1]]["pheromone_level"] *= (1- self.rho)
 
         # Step 2: Pheromone is then added on the arcs the ants have crossed in their tours:
-
-        # 2. Deposit pheromone trails in the environment
         for ant in ants:
             for edge in ant.get_tour():
-                self.environment[edge[0]][edge[1]]["pheromone_level"] += 1 / ant.get_tour_length()
+                self.environment[edge[0]][edge[1]]["pheromone_level"] += 1 / ant.get_cost()
 
     # Get the pheromone trails in the environment
     def get_pheromone_map(self):
