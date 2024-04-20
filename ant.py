@@ -20,6 +20,10 @@ class Ant():
             self.visited.append(next_node)
             self.current_location = next_node
         
+        # return to initial node again
+        self.travelled_distance += self.get_distance(self.visited[0])
+
+        
 
     # Select the next path based on the random proportional rule of the ACO algorithm
     def select_path(self):
