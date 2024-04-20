@@ -54,3 +54,7 @@ class Ant():
     # Get the pseudo-euclidean distance between current location and the destination vertex
     def get_distance(self, j: int):
         return self.environment.get_distance(self.current_location, j)
+    
+    def reset_ant(self):
+        self.visited = [self.current_location]
+        self.travelled_distance = 0

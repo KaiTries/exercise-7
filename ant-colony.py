@@ -54,6 +54,8 @@ class AntColony:
                     solution = ant.visited
                     shortest_distance = ant.travelled_distance
             self.environment.update_pheromone_map(self.ants)
+            for ant in self.ants:
+                ant.reset_ant()
 
 
 
@@ -62,7 +64,7 @@ class AntColony:
 
 def main():
     # Intialize the ant colony
-    ant_colony = AntColony(1, 5000, 1, 2, 0.5)
+    ant_colony = AntColony(1, 100, 1, 2, 0.5)
 
     # Solve the ant colony optimization problem
     solution, distance = ant_colony.solve()
