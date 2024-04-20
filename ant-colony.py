@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 from environment import Environment
 from ant import Ant 
@@ -20,7 +21,7 @@ class AntColony:
         self.rho = rho 
 
         # Initialize the environment of the ant colony
-        self.environment = Environment(self.rho)
+        self.environment = Environment(self.rho, ant_population)
 
         # Initilize the list of ants of the ant colony
         self.ants = []
@@ -29,7 +30,7 @@ class AntColony:
         for i in range(ant_population):
             
             # Initialize an ant on a random initial location 
-            ant = Ant(self.alpha, self.beta, None)
+            ant = Ant(self.alpha, self.beta, random.randint(1,48))
 
             # Position the ant in the environment of the ant colony so that it can move around
             ant.join(self.environment)
@@ -51,7 +52,7 @@ class AntColony:
 
 def main():
     # Intialize the ant colony
-    ant_colony = AntColony(1, None, None, None, None)
+    ant_colony = AntColony(1, 48, 1, 2, 0.5)
 
     # Solve the ant colony optimization problem
     solution, distance = ant_colony.solve()
