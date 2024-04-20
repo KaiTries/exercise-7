@@ -68,7 +68,7 @@ class AntColony:
 
 def main():
     # Intialize the ant colony
-    ant_colony = AntColony(48, 100, 1, 2, 0.5)
+    ant_colony = AntColony(48, 200, 1, 2, 0.5)
 
     # Solve the ant colony optimization problem
     solution, distance = ant_colony.solve()

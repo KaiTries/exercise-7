@@ -7,6 +7,7 @@ class Ant():
     def __init__(self, alpha: float, beta: float, initial_location: int):
         self.alpha = alpha
         self.beta = beta
+        self.initial_location = initial_location
         self.current_location = initial_location
         self.visited = [initial_location]
         self.travelled_distance = 0
@@ -18,6 +19,11 @@ class Ant():
             self.travelled_distance += self.get_distance(next_node)
             self.visited.append(next_node)
             self.current_location = next_node
+        
+        self.travelled_distance += self.get_distance(self.initial_location)
+        self.visited.append(self.initial_location)
+
+        
                 
     # Select the next path based on the random proportional rule of the ACO algorithm
     def select_path(self):
@@ -51,5 +57,6 @@ class Ant():
         return self.environment.get_distance(self.current_location, j)
     
     def reset_ant(self):
-        self.visited = [self.current_location]
+        self.visited = [self.initial_location]
+        self.current_location = self.initial_location
         self.travelled_distance = 0

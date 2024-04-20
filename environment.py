@@ -8,12 +8,10 @@ import tsplib95
 """
 class Environment:
     def __init__(self, rho: float, ant_population: int):
-
         self.rho =rho
         self.population = ant_population
         # Initialize the environment topology
         self.environment = tsplib95.load('att48-specs/att48.tsp').get_graph()
-
         # Intialize the pheromone map in the environment
         self.initialize_pheromone_map()
     
@@ -59,8 +57,8 @@ class Environment:
 
         # Step 2: Pheromone is then added on the arcs the ants have crossed in their tours:
         for ant in ants:
-            for edge in ant.visited:
-                self.environment[edge][(edge+1) % len(ant.visited)+1]["pheromone_level"] += 1 / ant.travelled_distance
+            for i in range(len(ant.visited)-1):
+                self.environment[ant.visited[i]][ant.visited[i + 1]]["pheromone_level"] += 1 / ant.travelled_distance
 
     # Get the pheromone trails in the environment
     def get_pheromone_map(self):
