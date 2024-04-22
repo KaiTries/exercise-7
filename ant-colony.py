@@ -106,9 +106,11 @@ def main():
                         results["Best"]["Beta"] = beta
                         results["Best"]["Rho"] = rho
                         results["Best"]["Solution"] = solution
-                results["Alpha"]["range"][alpha] = sum(distances) / len(distances)
-                results["Beta"]["range"][beta] = sum(distances) / len(distances)
-                results["Rho"]["range"][rho] = sum(distances) / len(distances)
+                
+
+                print("Average distance: ", sum(distances) / len(distances))
+                print("Best distance: ", best_distance)
+
 
     print(results)
 
