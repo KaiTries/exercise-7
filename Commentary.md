@@ -1,5 +1,9 @@
 # Exercise 7 - Solutions Kai Schultz
+The code should have implemented the ACO algorithm correctly. If you run ant-colony.py it will start running all the different combinations of alpha, beta and rho. 
+It logs the initial pheromone of the current colony. Other than that it will update you in the terminal if there is a new best path.
 
+I am running multiple runs per configuration, because due to computational limitations I cannot run larger colonies / longer iterations. So I am subject to larger deviations. 
+To counteract this I am running the same configuration multiple times.
 
 
 ## Task 3

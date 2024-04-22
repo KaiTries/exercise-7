@@ -97,6 +97,3 @@ class Environment:
     def get_distance(self, i, j):
         return tsplib95.distances.pseudo_euclidean(self.problem.node_coords[i], self.problem.node_coords[j])
     
-    # Get the pseudo-euclidean distance between two vertices
-    def get_distance(self, i: int, j: int) -> int:
-        return self.environment[i][j]["weight"]
