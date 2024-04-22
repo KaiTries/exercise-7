@@ -1,5 +1,7 @@
+import tsplib95
+import numpy as np
+
 # Class representing an artificial ant of the ant colony
-import random
 """
     alpha: a parameter controlling the influence of the amount of pheromone during ants' path selection process
     beta: a parameter controlling the influence of the distance to the next node during ants' path selection process
@@ -8,61 +10,71 @@ class Ant():
     def __init__(self, alpha: float, beta: float, initial_location: int):
         self.alpha = alpha
         self.beta = beta
-        self.initial_location = initial_location
-        self.current_location = initial_location
-        self.visited = [initial_location]
+        self.current_location = initial_location + 1
         self.travelled_distance = 0
+        self.visited_locations = []
+        self.visited_edges = []
+        self.environment = None
+
 
        # The ant runs to visit all the possible locations of the environment 
     def run(self):
-        self.visited = [self.initial_location]
-        self.current_location = self.initial_location
+        # list of all nodes
+        all_cities = [i+1 for i in range(self.environment.n)]
+        # Initialize the ant by visiting the initial location
+        self.visited_locations = [self.current_location]
         self.travelled_distance = 0
 
-        while len(self.visited) < 48:
-            next_node = self.select_path()
-            self.travelled_distance += self.get_distance(next_node)
-            self.visited.append(next_node)
-            self.current_location = next_node
-        
-        self.travelled_distance += self.get_distance(self.initial_location)
-        self.visited.append(self.initial_location)
+        # not yet visited nodes
+        not_yet_visited = set(all_cities) - set(self.visited_locations)
 
+        while not_yet_visited:
+            next_location = self.select_path(not_yet_visited)
+            self.travelled_distance += self.get_distance(self.current_location, next_location)
+            self.visited_locations.append(next_location)
+            self.visited_edges.append((self.current_location, next_location))
+
+            # Move to the next location
+            self.current_location = next_location
+            not_yet_visited.remove(next_location)
+
+        # Return to the initial location
+        self.travelled_distance += self.get_distance(self.visited_locations[-1], self.visited_locations[0])
+        self.visited_edges.append((self.visited_locations[-1], self.visited_locations[0]))
         
                 
     # Select the next path based on the random proportional rule of the ACO algorithm
-    def select_path(self):
-        reachable_cities = self.environment.get_possible_locations(self.current_location)
-        not_yet_visited = {key: value for key, value in reachable_cities.items() if key not in self.visited}
+    def select_path(self, not_yet_visited):
+        # Calculate the probability of selecting each path
+        probabilities = self.get_probabilities(not_yet_visited)
+
+        # Select the next path based on the probability
+        next_location = np.random.choice(list(not_yet_visited), p=probabilities)
+        return next_location
+    
+
+    # Calculate the probabilities of selecting paths
+    def get_probabilities(self, not_yet_visited):
+        probabilities = []
+        total = 0
+        for i in not_yet_visited:
+            total += self.get_probability(i)
+            probabilities.append(self.get_probability(i))
+
+        for k in range(len(probabilities)):
+            probabilities[k] /= total
         
-        denominator = 0
+        return probabilities
+    
+    # Calculate the probability of selecting a path
+    def get_probability(self, i):
+        return (self.environment.pheromone_map[(self.current_location, i)] ** self.alpha) * ((1 / self.get_distance(self.current_location, i)) ** self.beta)
 
-        for city in not_yet_visited:
-            pheromone_level = not_yet_visited[city]["pheromone_level"]
-            distance_heuristic = 1 / not_yet_visited[city]["weight"]
-            not_yet_visited[city]["numerator"] = pheromone_level**self.alpha * distance_heuristic**self.beta
-            denominator += not_yet_visited[city]["numerator"]
-
-        for city in not_yet_visited:
-            not_yet_visited[city]["probability"] = not_yet_visited[city]["numerator"] / denominator
-        
-        threshhold = random.random()
-        x = 0
-        for city in not_yet_visited:
-            x += not_yet_visited[city]["probability"]
-            if x > threshhold:
-                return city
-
-
-
-    def get_cost(self):
-        return self.travelled_distance
 
     # Position an ant in an environment
     def join(self, environment):
         self.environment = environment
 
-    # Get the pseudo-euclidean distance between current location and the destination vertex
-    def get_distance(self, j: int):
-        return self.environment.get_distance(self.current_location, j)
-    
+    def get_distance(self, i, j):
+        return tsplib95.distances.pseudo_euclidean(self.environment.problem.node_coords[i], self.environment.problem.node_coords[j])
+

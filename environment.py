@@ -7,60 +7,82 @@ import tsplib95
     rho: pheromone evaporation rate
 """
 class Environment:
-    def __init__(self, rho: float, ant_population: int):
+    def __init__(self, rho, ant_population: int):
+
         self.rho =rho
-        self.population = ant_population
+        self.ant_population = ant_population
+        
         # Initialize the environment topology
-        self.environment = tsplib95.load('att48-specs/att48.tsp').get_graph()
-        # Intialize the pheromone map in the environment
-        self.initialize_pheromone_map()
+        self.problem = tsplib95.load("./att48-specs/att48.tsp")
+        self.n = self.problem.dimension
+        self.nodes = list(self.problem.get_nodes())
+        self.edges = list(self.problem.get_edges())
+
+
+        # Initialize the pheromone map in the environment
+        self.distances =  self.initialize_distance_matrix()
+        self.pheromone_map = self.initialize_pheromone_map()
+
     
+    # Initialize the distance matrix of the environment
+    def initialize_distance_matrix(self):
+        distances = {}
+        for i in range(self.n):
+            for j in range(self.n):
+                distances[(i + 1, j + 1)] = self.get_distance(i + 1, j + 1)
+        return distances
+
+
+
 
     # Intialize the pheromone trails in the environment
-    def initialize_pheromone_map(self) -> None:
-        # C^nn is the expected cost of a tour generated using a nearest neighbour heuristic
-        current_node = random.randint(1,48)
-        starting_node = current_node
+    def initialize_pheromone_map(self):
+        # find cost of tour that uses nearest neighbor heuristic
+        curr_node = random.choice(self.nodes)
         cost = 0
-        visited = []
-        # loop until all nodes have been visited. Add up the cost
-        # cost is just the distance
-        while len(visited) < 48:
-            visited.append(current_node)
-            closest = float("inf")
-            next_node = None
-            for n in self.environment.neighbors(current_node):
-                if n not in visited:
-                    dist = self.get_distance(current_node,n)
-                    if dist < closest:
-                        closest = dist
-                        next_node = n
-                        cost += dist
-            if next_node:
-                current_node = next_node
+        visited = [curr_node]
+
+        while len(visited) < self.n:
+            min_dist = math.inf
+            min_node = -1
+            for node in self.nodes:
+                if node not in visited:
+                    dist = self.distances[(curr_node, node)]
+                    if dist < min_dist:
+                        min_dist = dist
+                        min_node = node
+            visited.append(min_node)
+            cost += min_dist
+            curr_node = min_node
+
+        cost += self.distances[(visited[-1], visited[0])]
+
+        # initial pheromone is given by m / C^nn where m is the number of ants and C^nn is the cost of the nearest neighbor tour
+        initial_pheromone = self.ant_population / cost
+
+        print("Initial pheromone: ", initial_pheromone)
+
+        pheromone_map = {}
+        for edge in self.edges:
+            pheromone_map[edge] = initial_pheromone
+        return pheromone_map
+    
         
-        visited.append(starting_node)
-        cost += self.get_distance(current_node,starting_node)
-        
-        
-        print("initial pheromone per trail: ", self.population / cost)
-            
-        for edge in self.environment.edges():
-            self.environment[edge[0]][edge[1]]["pheromone_level"] = self.population / cost
-            
 
     # Update the pheromone trails in the environment
-    def update_pheromone_map(self, ants: list) -> None:
-        # Step 1: Pheromone is first removed from all arcs (pheromone evaporation):
-        for edge in self.environment.edges():
-            self.environment[edge[0]][edge[1]]["pheromone_level"] *= (1- self.rho)
-            self.environment[edge[1]][edge[0]]["pheromone_level"] *= (1- self.rho)
-
-        # Step 2: Pheromone is then added on the arcs the ants have crossed in their tours:
+    def update_pheromone_map(self, ants: list):
+        # Step 1: Evaporate pheromone
+        for edge in self.edges:
+            self.pheromone_map[edge] *= (1 - self.rho)
+        
+        # Step 2: Deposit pheromone
         for ant in ants:
-            for i in range(len(ant.visited)-1):
-                self.environment[ant.visited[i]][ant.visited[i + 1]]["pheromone_level"] += 1 / ant.travelled_distance
-                self.environment[ant.visited[i + 1]][ant.visited[i]]["pheromone_level"] += 1 / ant.travelled_distance
+            for edge in ant.visited_edges:
+                self.pheromone_map[edge] += 1 / ant.travelled_distance
+                # also add the reverse edge
+                self.pheromone_map[(edge[1], edge[0])] += 1 / ant.travelled_distance
+        
+      
 
 
     # Get the pheromone trails in the environment
@@ -68,8 +90,12 @@ class Environment:
         return self.environment.edges()
     
     # Get the environment topology
-    def get_possible_locations(self, current_location: int):
-        return self.environment[current_location]
+    def get_possible_locations(self):
+        pass
+
+    # specific pseudo euclidean distance
+    def get_distance(self, i, j):
+        return tsplib95.distances.pseudo_euclidean(self.problem.node_coords[i], self.problem.node_coords[j])
     
     # Get the pseudo-euclidean distance between two vertices
     def get_distance(self, i: int, j: int) -> int:
