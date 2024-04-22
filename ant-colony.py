@@ -57,9 +57,7 @@ class AntColony:
                     shortest_distance = ant.travelled_distance
             # update the pheromone map
             self.environment.update_pheromone_map(self.ants)
-            # reset the memory of the ants (distance travelled and citys visited)
-            for ant in self.ants:
-                ant.reset_ant()
+
 
 
 

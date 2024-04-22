@@ -1,4 +1,5 @@
 # Class representing an artificial ant of the ant colony
+import random
 """
     alpha: a parameter controlling the influence of the amount of pheromone during ants' path selection process
     beta: a parameter controlling the influence of the distance to the next node during ants' path selection process
@@ -14,6 +15,10 @@ class Ant():
 
        # The ant runs to visit all the possible locations of the environment 
     def run(self):
+        self.visited = [self.initial_location]
+        self.current_location = self.initial_location
+        self.travelled_distance = 0
+
         while len(self.visited) < 48:
             next_node = self.select_path()
             self.travelled_distance += self.get_distance(next_node)
@@ -40,8 +45,14 @@ class Ant():
 
         for city in not_yet_visited:
             not_yet_visited[city]["probability"] = not_yet_visited[city]["numerator"] / denominator
+        
+        threshhold = random.random()
+        x = 0
+        for city in not_yet_visited:
+            x += not_yet_visited[city]["probability"]
+            if x > threshhold:
+                return city
 
-        return max(not_yet_visited, key=lambda x: not_yet_visited[x]["probability"])
 
 
     def get_cost(self):
@@ -50,13 +61,8 @@ class Ant():
     # Position an ant in an environment
     def join(self, environment):
         self.environment = environment
-        self.select_path()
 
     # Get the pseudo-euclidean distance between current location and the destination vertex
     def get_distance(self, j: int):
         return self.environment.get_distance(self.current_location, j)
     
-    def reset_ant(self):
-        self.visited = [self.initial_location]
-        self.current_location = self.initial_location
-        self.travelled_distance = 0

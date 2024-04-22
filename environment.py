@@ -46,7 +46,7 @@ class Environment:
         print("initial pheromone per trail: ", self.population / cost)
             
         for edge in self.environment.edges():
-            self.environment[edge[0]][edge[1]]["pheromone_level"] = 1 / cost
+            self.environment[edge[0]][edge[1]]["pheromone_level"] = self.population / cost
             
 
     # Update the pheromone trails in the environment
@@ -54,11 +54,14 @@ class Environment:
         # Step 1: Pheromone is first removed from all arcs (pheromone evaporation):
         for edge in self.environment.edges():
             self.environment[edge[0]][edge[1]]["pheromone_level"] *= (1- self.rho)
+            self.environment[edge[1]][edge[0]]["pheromone_level"] *= (1- self.rho)
 
         # Step 2: Pheromone is then added on the arcs the ants have crossed in their tours:
         for ant in ants:
             for i in range(len(ant.visited)-1):
                 self.environment[ant.visited[i]][ant.visited[i + 1]]["pheromone_level"] += 1 / ant.travelled_distance
+                self.environment[ant.visited[i + 1]][ant.visited[i]]["pheromone_level"] += 1 / ant.travelled_distance
+
 
     # Get the pheromone trails in the environment
     def get_pheromone_map(self):
