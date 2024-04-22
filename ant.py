@@ -78,5 +78,5 @@ class Ant():
 
 
     def get_distance(self, i, j):
-        return tsplib95.distances.pseudo_euclidean(self.environment.problem.node_coords[i], self.environment.problem.node_coords[j])
+        return self.environment.distances[i, j]
 
