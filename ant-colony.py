@@ -1,8 +1,7 @@
 import numpy as np
-import random
 
 from environment import Environment
-from ant import Ant 
+from ant import Ant
 
 # Class representing the ant colony
 """
@@ -13,7 +12,8 @@ from ant import Ant
     rho: pheromone evaporation rate
 """
 class AntColony:
-    def __init__(self, ant_population: int, iterations: int, alpha: float, beta: float, rho: float):
+    def __init__(self, tsp: str, ant_population: int, iterations: int, alpha: float, beta: float, rho: float):
+        self.tsp = tsp
         self.ant_population = ant_population
         self.iterations = iterations
         self.alpha = alpha
@@ -21,7 +21,7 @@ class AntColony:
         self.rho = rho 
 
         # Initialize the environment of the ant colony
-        self.environment = Environment(self.rho, ant_population)
+        self.environment = Environment(self.tsp, self.rho, self.ant_population)
 
         # Initilize the list of ants of the ant colony
         self.ants = []
@@ -30,7 +30,7 @@ class AntColony:
         for i in range(ant_population):
             
             # Initialize an ant on a random initial location 
-            ant = Ant(self.alpha, self.beta, random.randint(1,48))
+            ant = Ant(self.alpha, self.beta, None)
 
             # Position the ant in the environment of the ant colony so that it can move around
             ant.join(self.environment)
@@ -46,29 +46,12 @@ class AntColony:
         # Initially, the shortest distance is set to infinite
         shortest_distance = np.inf
 
-        # we doing x amount of rounds
-        for _ in range(0,self.iterations):
-            # each ant runs its path
-            for ant in self.ants:
-                ant.run()
-                # if an ant found a new shortest path we set it
-                if ant.travelled_distance < shortest_distance:
-                    solution = ant.visited
-                    shortest_distance = ant.travelled_distance
-            # update the pheromone map
-            self.environment.update_pheromone_map(self.ants)
-            # reset the memory of the ants (distance travelled and citys visited)
-            for ant in self.ants:
-                ant.reset_ant()
-
-
-
         return solution, shortest_distance
 
 
 def main():
     # Intialize the ant colony
-    ant_colony = AntColony(48, 200, 1, 2, 0.5)
+    ant_colony = AntColony("./att48-specs/att48.tsp",1, 1, 1, 2, 0.5)
 
     # Solve the ant colony optimization problem
     solution, distance = ant_colony.solve()
