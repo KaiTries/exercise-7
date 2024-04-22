@@ -1,6 +1,7 @@
 import math
 import random
 import tsplib95
+
 # Class representing the environment of the ant colony
 """
     rho: pheromone evaporation rate
@@ -81,12 +82,12 @@ class Environment:
                 # also add the reverse edge
                 self.pheromone_map[(edge[1], edge[0])] += 1 / ant.travelled_distance
         
-        
+      
 
 
     # Get the pheromone trails in the environment
     def get_pheromone_map(self):
-        pass
+        return self.environment.edges()
     
     # Get the environment topology
     def get_possible_locations(self):
@@ -95,5 +96,7 @@ class Environment:
     # specific pseudo euclidean distance
     def get_distance(self, i, j):
         return tsplib95.distances.pseudo_euclidean(self.problem.node_coords[i], self.problem.node_coords[j])
-
     
+    # Get the pseudo-euclidean distance between two vertices
+    def get_distance(self, i: int, j: int) -> int:
+        return self.environment[i][j]["weight"]
