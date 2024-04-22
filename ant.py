@@ -1,12 +1,13 @@
 import tsplib95
 import numpy as np
+
 # Class representing an artificial ant of the ant colony
 """
     alpha: a parameter controlling the influence of the amount of pheromone during ants' path selection process
     beta: a parameter controlling the influence of the distance to the next node during ants' path selection process
 """
 class Ant():
-    def __init__(self, alpha: float, beta: float, initial_location):
+    def __init__(self, alpha: float, beta: float, initial_location: int):
         self.alpha = alpha
         self.beta = beta
         self.current_location = initial_location + 1
@@ -16,7 +17,7 @@ class Ant():
         self.environment = None
 
 
-    # The ant runs to visit all the possible locations of the environment 
+       # The ant runs to visit all the possible locations of the environment 
     def run(self):
         # list of all nodes
         all_cities = [i+1 for i in range(self.environment.n)]
@@ -40,9 +41,8 @@ class Ant():
         # Return to the initial location
         self.travelled_distance += self.get_distance(self.visited_locations[-1], self.visited_locations[0])
         self.visited_edges.append((self.visited_locations[-1], self.visited_locations[0]))
-
-
-
+        
+                
     # Select the next path based on the random proportional rule of the ACO algorithm
     def select_path(self, not_yet_visited):
         # Calculate the probability of selecting each path
@@ -71,10 +71,10 @@ class Ant():
         return (self.environment.pheromone_map[(self.current_location, i)] ** self.alpha) * ((1 / self.get_distance(self.current_location, i)) ** self.beta)
 
 
-
     # Position an ant in an environment
     def join(self, environment):
         self.environment = environment
-    
+
     def get_distance(self, i, j):
         return tsplib95.distances.pseudo_euclidean(self.environment.problem.node_coords[i], self.environment.problem.node_coords[j])
+
