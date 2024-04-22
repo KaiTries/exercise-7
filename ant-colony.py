@@ -55,12 +55,12 @@ class AntColony:
 def main():
     # ant colony configuration
     ants = 48
-    iterations_per_level = 20
-    iterations = 50
+    iterations_per_level = 10
+    iterations = 25
 
     alphas = [0.75, 1, 1.25]
-    betas = [2, 3, 4, 5, 6]
-    rhos = [0.3, 0.4, 0.5, 0.6, 0.7]
+    betas = [2, 3, 5, 6]
+    rhos = [0.1, 0.3, 0.5, 0.8]
 
     results = {
         "Best": {
