@@ -35,7 +35,7 @@ class Environment:
 
         for edge, distance in distance_map.items():
             distance_array[edge[0], edge[1]] = distance
-            
+
 
         return distance_array
 
@@ -54,7 +54,7 @@ class Environment:
             min_node = -1
             for node in self.nodes:
                 if node not in visited:
-                    dist = self.distances[(curr_node, node)]
+                    dist = self.distances[curr_node, node]
                     if dist < min_dist:
                         min_dist = dist
                         min_node = node
@@ -62,7 +62,7 @@ class Environment:
             cost += min_dist
             curr_node = min_node
 
-        cost += self.distances[(visited[-1], visited[0])]
+        cost += self.distances[visited[-1], visited[0]]
 
         # initial pheromone is given by m / C^nn where m is the number of ants and C^nn is the cost of the nearest neighbor tour
         initial_pheromone = self.ant_population / cost
@@ -92,8 +92,8 @@ class Environment:
         for ant in ants:
             pheromone_deposit = 1 / ant.travelled_distance
             for edge in ant.visited_edges:
-                self.pheromone_map[(edge[0], edge[1])] += pheromone_deposit
-                self.pheromone_map[(edge[1], edge[0])] += pheromone_deposit
+                self.pheromone_map[edge[0], edge[1]] += pheromone_deposit
+                self.pheromone_map[edge[1], edge[0]] += pheromone_deposit
         
       
 
