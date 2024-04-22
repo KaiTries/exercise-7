@@ -22,35 +22,24 @@ class AntColony:
         # Initialize the environment of the ant colony
         self.environment = Environment(self.rho, self.ant_population)
 
-
         # Initilize the list of ants of the ant colony
         self.ants = []
 
         # Initialize the ants of the ant colony
         for i in range(ant_population):
-            
             # Initialize an ant on a random initial location 
             ant = Ant(self.alpha, self.beta, random.choice(range(self.environment.n)))
-
-
-            # Position the ant in the environment of the ant colony so that it can move around
             ant.join(self.environment)
-        
-            # Add the ant to the ant colony
             self.ants.append(ant)
 
     # Solve the ant colony optimization problem  
     def solve(self):
         # The solution will be a list of the visited cities
         solution = []
-
         # Initially, the shortest distance is set to infinite
         shortest_distance = np.inf
-
-
         # Iterate over the number of iterations
         for i in range(self.iterations):
-
             # Run all the ants of the ant colony
             for ant in self.ants:
                 ant.run()
@@ -58,59 +47,57 @@ class AntColony:
                 if ant.travelled_distance < shortest_distance:
                     shortest_distance = ant.travelled_distance
                     solution = ant.visited_locations
-
             # Update the pheromone map of the environment
             self.environment.update_pheromone_map(self.ants)
-
         return solution, shortest_distance
 
 
 def main():
     # ant colony configuration
     ants = 48
-    iterations_per_level = 20
-    iterations = 50
+    iterations_per_level = 10
+    iterations = 25
 
+    alphas = [0.75, 1, 1.25]
+    betas = [2, 3, 5, 6]
+    rhos = [0.1, 0.3, 0.5, 0.8]
 
     results = {
-        "Alpha": {
-            "range" : {}
-        },
-        "Beta": {
-            "range": {}
-        },
-        "Rho": {
-            "range": {}
-        },
         "Best": {
             "Alpha": None,
             "Beta": None,
             "Rho": None,
             "Solution": None
-        }
+        },
+        "Best_paths" : np.zeros((len(alphas), len(betas), len(rhos)))
     }
-    for alpha in [0.75,1,1.25]:
-        for beta in [2,3,4,5,6]:
-            for rho in [0.3,0.4,0.5,0.6,0.7]:
+
+    best_distance = np.inf
+    for alpha in alphas:
+        for beta in betas:
+            for rho in rhos:
+                alpha_index = alphas.index(alpha)
+                beta_index = betas.index(beta)
+                rho_index = rhos.index(rho)
                 print("Alpha: ", alpha)
                 print("Beta: ", beta)
                 print("Rho: ", rho)
-                distances = []
-                best_distance = np.inf
                 for i in range(iterations_per_level):
                     ant_colony = AntColony(ants, iterations, alpha, beta, rho)
                     # Solve the ant colony optimization problem
                     solution, distance = ant_colony.solve()
-                    distances.append(distance)
                     if distance < best_distance:
                         best_distance = distance
                         results["Best"]["Alpha"] = alpha
                         results["Best"]["Beta"] = beta
                         results["Best"]["Rho"] = rho
                         results["Best"]["Solution"] = solution
-                results["Alpha"]["range"][alpha] = sum(distances) / len(distances)
-                results["Beta"]["range"][beta] = sum(distances) / len(distances)
-                results["Rho"]["range"][rho] = sum(distances) / len(distances)
+                        print("Best solution: ", solution)
+                        print("Best distance: ", distance)
+                
+                results["Best_paths"][alpha_index][beta_index][rho_index] = best_distance
+                
+
 
     print(results)
 
