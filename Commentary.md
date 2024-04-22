@@ -16,8 +16,10 @@ This is done in the precompute_probability_matrix() method. Because we need each
 
 Also since we now have the probabilities in a numpy array we can collect the next node through vectorized numpy operations as well, this is done in the select_path() method.
 
-### 
-
+### Environment
+In the environment I unpack the tsplib95 problem and create two numpy arrays. One array for the distances and one array for the pheromone levels. With these two numpy arrays we can do all computations
+efficiently. The initialization is not that import for the overall performance. Overall for performance the ant is much more vital since most of the computation happens there. Nevertheless the update_pheromone_map()
+function gets called frequently as well. Here we can utilize vectorized computation for the evaporation. 
 
 ## Task 3
 I tested the different variations empirically. The different combinations were:
