@@ -24,6 +24,9 @@ class Ant():
         # Avoid division by zero: replace zeros in distances with a small value
         safe_distances = np.where(intial_distances == 0, np.inf, intial_distances)
 
+        # this calculates the probabilities based on the ACO algorithm
+        # the probability of moving from node i to node j is given by:
+        # (pheromone[i, j] ** alpha) * ((1 / distance[i, j]) ** beta)
         probabilities = (initial_pheromones ** self.alpha) * ((1 / safe_distances) ** self.beta)
 
 
@@ -57,10 +60,12 @@ class Ant():
         # Return to the initial location
         self.travelled_distance += self.get_distance(self.visited_locations[-1], self.visited_locations[0])
         self.visited_edges.append((self.visited_locations[-1], self.visited_locations[0]))
+        self.visited_locations.append(self.visited_locations[0])
         
                 
     # Select the next path based on the random proportional rule of the ACO algorithm
     def select_path(self, not_yet_visited):
+        # gives us the probability of moving to each node as a vector
         prob_vector = self.probabilities[self.current_location, not_yet_visited]
         total = np.sum(prob_vector)
         normalized_probabilities = prob_vector / total if total > 0 else prob_vector
