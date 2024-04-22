@@ -66,25 +66,55 @@ class AntColony:
 
 def main():
     # ant colony configuration
-    ants = 10
-    iterations_per_level = 50
-    iterations = 20
+    ants = 48
+    iterations_per_level = 20
+    iterations = 50
 
     results = {
         "Alpha": {
-            "range" : {},
-            "best": ()
+            "range" : {}
         },
         "Beta": {
-            "range": {},
-            "best": ()
+            "range": {}
         },
         "Rho": {
-            "range": {},
-            "best": ()
+            "range": {}
+        },
+        "Best": {
+            "Alpha": None,
+            "Beta": None,
+            "Rho": None,
+            "Solution": None
         }
     }
-    
+    for alpha in [0.75,1,1.25]:
+        for beta in [2,3,4,5,6]:
+            for rho in [0.3,0.4,0.5,0.6,0.7]:
+                print("Alpha: ", alpha)
+                print("Beta: ", beta)
+                print("Rho: ", rho)
+                distances = []
+                best_distance = np.inf
+                for i in range(iterations_per_level):
+                    ant_colony = AntColony(ants, iterations, alpha, beta, rho)
+                    # Solve the ant colony optimization problem
+                    solution, distance = ant_colony.solve()
+                    distances.append(distance)
+                    if distance < best_distance:
+                        best_distance = distance
+                        results["Best"]["Alpha"] = alpha
+                        results["Best"]["Beta"] = beta
+                        results["Best"]["Rho"] = rho
+                        results["Best"]["Solution"] = solution
+                results["Alpha"]["range"][alpha] = sum(distances) / len(distances)
+                results["Beta"]["range"][beta] = sum(distances) / len(distances)
+                results["Rho"]["range"][rho] = sum(distances) / len(distances)
+
+
+
+
+
+
     # Test the influence of the alpha parameter
     for alpha in np.arange(0, 5.5, 0.5):
         print("Alpha: ", alpha)
