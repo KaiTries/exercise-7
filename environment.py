@@ -1,7 +1,7 @@
 import math
 import random
 import tsplib95
-
+import numpy as np
 # Class representing the environment of the ant colony
 """
     rho: pheromone evaporation rate
@@ -26,11 +26,18 @@ class Environment:
     
     # Initialize the distance matrix of the environment
     def initialize_distance_matrix(self):
-        distances = {}
-        for i in range(self.n):
-            for j in range(self.n):
-                distances[(i + 1, j + 1)] = self.get_distance(i + 1, j + 1)
-        return distances
+        distance_map = {edge: self.get_distance(edge[0], edge[1]) for edge in self.edges}
+
+        max_x = max(key[0] for key in distance_map) + 1
+        max_y = max(key[1] for key in distance_map) + 1
+
+        distance_array = np.zeros((max_x, max_y))
+
+        for edge, distance in distance_map.items():
+            distance_array[edge[0], edge[1]] = distance
+            
+
+        return distance_array
 
 
 
@@ -62,36 +69,38 @@ class Environment:
 
         print("Initial pheromone: ", initial_pheromone)
 
-        pheromone_map = {}
-        for edge in self.edges:
-            pheromone_map[edge] = initial_pheromone
-        return pheromone_map
+        pheromone_map = {edge: initial_pheromone for edge in self.edges}
+
+        max_x = max(key[0] for key in pheromone_map) + 1
+        max_y = max(key[1] for key in pheromone_map) + 1
+
+        pheremone_array = np.zeros((max_x, max_y))
+
+        for edge, pheromone in pheromone_map.items():
+            pheremone_array[edge[0], edge[1]] = pheromone
+        
+        return pheremone_array
     
         
 
     # Update the pheromone trails in the environment
     def update_pheromone_map(self, ants: list):
         # Step 1: Evaporate pheromone
-        for edge in self.edges:
-            self.pheromone_map[edge] *= (1 - self.rho)
+        self.pheromone_map *= (1 - self.rho)
         
         # Step 2: Deposit pheromone
         for ant in ants:
+            pheromone_deposit = 1 / ant.travelled_distance
             for edge in ant.visited_edges:
-                self.pheromone_map[edge] += 1 / ant.travelled_distance
-                # also add the reverse edge
-                self.pheromone_map[(edge[1], edge[0])] += 1 / ant.travelled_distance
+                self.pheromone_map[(edge[0], edge[1])] += pheromone_deposit
+                self.pheromone_map[(edge[1], edge[0])] += pheromone_deposit
         
       
 
 
     # Get the pheromone trails in the environment
     def get_pheromone_map(self):
-        return self.environment.edges()
-    
-    # Get the environment topology
-    def get_possible_locations(self):
-        pass
+        return self.pheromone_map
 
     # specific pseudo euclidean distance
     def get_distance(self, i, j):
