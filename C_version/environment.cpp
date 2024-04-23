@@ -56,20 +56,28 @@ void Environment::load_problem(const std::string& filename) {
     }
 }
 
+/*
+    * Initialize the pheromone values for each edge
+    * The pheromone value is initialized to the inverse of the cost of a random path
+    * The cost of the path is calculated by selecting the nearest neighbour for each node
+    * The pheromone value is then calculated by dividing the number of ants by the cost of the path
+    * The pheromone value is then set for each edge
+*/
 void Environment::initialize_pheromone_values() {
     std::uniform_int_distribution<> distrib(1, 48); 
     int current_node = distrib(gen);  // Generates a random start node between 1 and 48
 
-    int cost = 0;
-    std::vector<int> visited;
-    visited.push_back(current_node);
+    int cost = 0; // The cost of the path
+    std::vector<int> visited; // The nodes that have been visited
+    visited.push_back(current_node); // Add the start node to the visited nodes
 
     while (visited.size() < n) {
         int min_distance = std::numeric_limits<int>::max();
         int next_node = -1;
 
         for (auto &node : nodes) {
-            if (node.id == current_node || std::find(visited.begin(), visited.end(), node.id) != visited.end()) {
+            if (node.id == current_node || std::find(visited.begin(), visited.end(), node.id) != visited.end()) // Skip the current node and already visited nodes
+            { 
                 continue;
             }
             int distance = get_distance(current_node - 1, node.id - 1);
@@ -80,24 +88,21 @@ void Environment::initialize_pheromone_values() {
         }
         visited.push_back(next_node);
         cost += min_distance;
-        if (next_node != -1) current_node = next_node;
+        if (next_node != -1) current_node = next_node; // Update the current node
     }
 
-    cost += get_distance(visited.back() - 1, visited.front() - 1);
+    cost += get_distance(visited.back() - 1, visited.front() - 1); // Add the distance from the last node to the first node
 
     // Calculate the initial pheromone value
-    double initial_pheromone = static_cast<double>(ant_population) / cost;
+    double initial_pheromone = static_cast<double>(ant_population) / cost; 
 
     for (auto& edge : edges) {
-        edge.pheromone = initial_pheromone;
-    }
-    // print the initial pheromone value make sure it is printed with 10 places after the decimal point
-    std::cout << "Initial pheromone value: " << initial_pheromone << std::endl;
+        edge.pheromone = initial_pheromone; // Set the initial pheromone value for each edge
+    }    
 }
 
 double Environment::get_distance(int i, int j) {
     // calculate the pseudo euclidean distance
-    // Ensure i < j to conform with how edges are stored
     auto& node1 = nodes[i];
     auto& node2 = nodes[j];
 
@@ -125,16 +130,17 @@ void Environment::update_pheromone_map(const std::vector<Ant>& ants) {
 
     // Add new pheromone based on the ants' paths
     for (auto &ant : ants) {
-        double additional_pheromone = 1.0 / ant.travelled_distance;
-        auto& visited_locations = ant.get_visited_locations();
+        double additional_pheromone = 1.0 / ant.travelled_distance; // The amount of pheromone to add
+        const auto& visited_locations = ant.get_visited_locations(); // The nodes visited by the ant
 
         for (size_t k = 0; k < visited_locations.size() - 1; ++k) {
             int i = visited_locations[k];
             int j = visited_locations[k + 1];
             if (i >= j) {
-                std::swap(i, j);
+                std::swap(i, j); // Ensure that i < j
             }
 
+            // transform 2D index to 1D index
             int index = ((i - 1) * n) - ((i - 1) * ((i - 1) + 1) / 2);
             index += ((j - 1) - (i - 1) - 1);
 
@@ -142,7 +148,7 @@ void Environment::update_pheromone_map(const std::vector<Ant>& ants) {
                 std::cerr << "Error: edge does not match given from and to" << std::endl;
             }
 
-            edges[index].pheromone += additional_pheromone;
+            edges[index].pheromone += additional_pheromone; // Add the pheromone to the edge
         }
     }
 }

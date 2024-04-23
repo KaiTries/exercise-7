@@ -1,7 +1,7 @@
 #ifndef ANT_H
 #define ANT_H
 
-#include "Environment.h"
+#include "environment.h"
 #include <vector>
 #include <set>
 

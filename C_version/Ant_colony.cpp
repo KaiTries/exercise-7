@@ -1,12 +1,65 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <limits>
 #include <random>
-#include <cmath> // For std::pow, std::numeric_limits<double>::infinity()
+#include <cmath>
 
-#include "Ant.h"  // Assume Ant class is defined in Ant.h
-#include "Environment.h" // Assume Environment class is defined in Environment.h
+#include "ant.h"
+#include "environment.h"
 
+void display_progress_and_results(
+    bool flag,
+    std::vector<int> best_solution,
+    int current_iteration, 
+    int total_iterations, 
+    double best_distance, 
+    double best_alpha, 
+    double best_beta, 
+    double best_rho,
+    double alpha,
+    double beta,
+    double rho
+) {
+    if (flag) {
+        // Move cursor up three lines
+        std::cout << "\x1b[3A";
+    } else {
+        std::cout << std::string(100, ' ') << "\r";  // Assume 100 is more than enough to clear any previous content
+    }
+    // Overwrite the best distance and parameter line
+    std::cout << "\r" << std::flush;
+    std::cout << "Best Distance: " << best_distance << " (α=" << best_alpha << ", β=" << best_beta << ", ρ=" << best_rho << ")" << std::endl;
+
+    // overwrite the the array with the best path
+    std::cout << "Best Path: ";
+    for (auto city : best_solution) {
+        std::cout << city << " ";
+    }
+    std::cout << std::endl;
+
+
+
+
+    // Overwrite the progress and current parameter line
+    std::cout << "\r" << std::flush;
+
+    double percentage = 100.0 * current_iteration / total_iterations;
+
+    int bar_width = 50;
+    int pos = bar_width * (current_iteration / static_cast<double>(total_iterations));
+    std::string arrow = ">";
+    if (current_iteration == total_iterations) {
+        std::cout << "[" << std::string(pos, '=') << "] " << std::fixed << std::setprecision(2) << percentage << "%";
+    } else {
+        std::cout << "[" << std::string(pos, '=') << arrow << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "% ";
+    }
+    std::cout << " Current Parameters: (α=" << alpha << ", β=" << beta << ", ρ=" << rho << ")" << std::endl;
+
+    // Flush to make sure everything is printed out
+    std::cout << std::flush;
+
+}
 
 class AntColony {
 private:
@@ -64,14 +117,17 @@ int main() {
 
     double best_distance = std::numeric_limits<double>::infinity();
     std::vector<int> best_solution;
+
+    for (int i = 1; i <= 48; ++i) {
+        best_solution.push_back(i);
+    }
     double alpha_best, beta_best, rho_best;
 
+    display_progress_and_results(false,best_solution,0,iterations_per_level,best_distance,0,0,0,alphas[0],betas[0],rhos[0]);
     for (auto alpha : alphas) {
         for (auto beta : betas) {
             for (auto rho : rhos) {
-                std::cout << "Alpha: " << alpha << " Beta: " << beta << " Rho: " << rho << std::endl;
-
-                for (int i = 0; i < iterations_per_level; ++i) {
+                for (int i = 1; i <= iterations_per_level; ++i) {
                     AntColony colony(ants, iterations, alpha, beta, rho);
                     auto [solution, distance] = colony.solve();
 
@@ -81,9 +137,8 @@ int main() {
                         alpha_best = alpha;
                         beta_best = beta;
                         rho_best = rho;
-
-                        std::cout << "New best distance: " << best_distance << std::endl;
                     }
+                    display_progress_and_results(true,best_solution,i,iterations_per_level,best_distance,alpha_best,beta_best,rho_best,alpha,beta,rho);
                 }
             }
         }

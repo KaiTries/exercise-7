@@ -53,32 +53,30 @@ class AntColony:
 
 
 def main():
+    random.seed(1337)
     # ant colony configuration
     ants = 48
-    iterations_per_level = 10
-    iterations = 25
+    iterations_per_level = 50
+    iterations = 100
 
-    alphas = [0.75, 1, 1.25]
-    betas = [2, 3, 5, 6]
-    rhos = [0.1, 0.3, 0.5, 0.8]
+    alphas = [0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]
+    betas = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]
+    rhos = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 
     results = {
         "Best": {
             "Alpha": None,
             "Beta": None,
             "Rho": None,
-            "Solution": None
-        },
-        "Best_paths" : np.zeros((len(alphas), len(betas), len(rhos)))
+            "Solution": None,
+            "Distance": None
+        }    
     }
 
     best_distance = np.inf
     for alpha in alphas:
         for beta in betas:
             for rho in rhos:
-                alpha_index = alphas.index(alpha)
-                beta_index = betas.index(beta)
-                rho_index = rhos.index(rho)
                 print("Alpha: ", alpha)
                 print("Beta: ", beta)
                 print("Rho: ", rho)
@@ -92,12 +90,10 @@ def main():
                         results["Best"]["Beta"] = beta
                         results["Best"]["Rho"] = rho
                         results["Best"]["Solution"] = solution
+                        results["Best"]["Distance"] = distance
                         print("Best solution: ", solution)
                         print("Best distance: ", distance)
-                
-                results["Best_paths"][alpha_index][beta_index][rho_index] = best_distance
-                
-
+            
 
     print(results)
 
