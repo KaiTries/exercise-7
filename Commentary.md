@@ -5,6 +5,8 @@ It logs the initial pheromone of the current colony. Other than that it will upd
 I am running multiple runs per configuration, because due to computational limitations I cannot run larger colonies / longer iterations. So I am subject to larger deviations. 
 To counteract this I am running the same configuration multiple times.
 
+I have put significantly more effort into the C version, so for a better experience I recommend trying out that version. It is pretty simple to set up you only need cmake.
+
 ## Optimizations - Python
 Due to the nature of the problem, the computer has to do a lot of computations on vectors. So I implemented most of the vital parts with numpy to utilize vectorized operations.
 Additionally I precomputed some aspects as the space / time tradeoff was worth it. I significantly reduced the computation time this way.
@@ -23,6 +25,8 @@ function gets called frequently as well. Here we can utilize vectorized computat
 
 ## Optimizations - C++
 Because it was still slow i decided to rewrite the source code in c++. To try out the c++ version either just start the executable in the release package or compile like this:
+
+## HOW TO RUN
 ```bash
 cd /C_version # make sure you are in the C_version folder
 mkdir build # create build folder for C
@@ -43,14 +47,18 @@ The same goes for the ant in the c++ implementation. The select_path() in the c+
 
 ## Task 3
 I tested the different variations empirically. The different combinations were:
+```cpp
+    ants = 48, iterations = 50, iterations_per_level = 10;
+    alphas = {0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};
+    betas = {1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3};
+    rhos = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9};
 ```
-alpha   [0.75,1,1.25]
-beta    [2,3,4,5,6]
-rho     [0.3,0.4,0.5,0.6,0.7]
-```
-
-for each combination I ran the simulation 20 times.
+for each combination I ran the simulation 10 times.
 Each Colony was filled with 48 ants and went through 50 iterations.
+
+
+![Interactive Configuration](gif_1.gif)
+
 
 While i would have preferred longer iterations, my computer cannot handle more than this
 
