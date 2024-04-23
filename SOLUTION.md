@@ -39,11 +39,12 @@ cmake --build . --config Release # creates the executable
 ### Run the binary
 ```bash
 cd /release # make sure you are in the release folder
-./AntColonyOptimization # executes the program
+./AntColonyOptimization_Arm64 # executes the program for Mac
+./AntColonyOptimization_Win64.exe # executes the program for windows
 ```
 
 * Make sure to paste the att48.tsp file into the same folder as the .exe, since it expects the problem file to be in the same folder otherwise it wont find it.
-* The exe was compiled on a mac with the arm64 architecture. If you have an incompatible operating system you have to compile yourself.
+* If you have an incompatible operating systems for the binaries you have to compile the program yourself.
 
 ### Environment - C
 For the environment to work in c++, I had to create my own Edge and Node structures. This also allowed my to directly add the pheromone level and distance to the edge structure.
