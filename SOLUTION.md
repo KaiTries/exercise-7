@@ -116,13 +116,25 @@ Since in the path selection the pheromone level of the path is taken to the powe
 With my shortest path, It was found using a rho of 0.4. This is again just slightly under the standard of 0.5. Indicating, that it was helpful that the pheromone evaporated just a little bit slower.
 
 ### Shortest Path
-![Interactive Configuration](gif_1.gif)
+![Image](/static/10712.png)
 The overall shortest path that i found was 10712 with the values: alpha = 1, beta = 1.5, rho = 0.4. 
 This shows that the ants relied both on the pheromone and the distance between the nodes. Since the beta is just 0.5 larger, it means that the ants relied a little bit more on the distance between nodes than on the pheromone between them. But since the evaporation rate is lower than usual and the difference between alpha and beta is not that large, overall the ants seem to have found that both pheromones and the distance between nodes are rhoughly as important as eachother. 
 
 I have also achieved a 10733 with: alpha = 1.1, beta = 6, and p = 0,4.
 
-![Interactive Configuration](gif_1.gif)
+![Image](/static/10733.png)
+s
+### Change of Strategy
+![Image](/static/newStrat.png)
+I realized that just going through iterations and only collecting the best distance just puts me in the crosshair of chance. That is why I added also a display for the best average distance and the alpha, beta, and rho used to achieve it. Then i decreased the iterations that the ants ran but in increased the amount of times a combination is run. Now each Colony goes through 20 iterations but does so 50 times on the same settings. This way I can get a more robust reading of the effectiveness of the combinations. 
+```cpp
+    std::mt19937 generator(1);
+    const int ants = 48, iterations = 20, iterations_per_level = 50;
+    const std::vector<double> alphas = {0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};
+    const std::vector<double> betas = {1,1.2,1.5,1.7,2,2.5,3,3.5,4,4.5,5,5.5,6};
+    const std::vector<double> rhos = {0.3,0.4,0.5,0.6,0.7,0.8};
+```
+These were my final settings.
 
 
 

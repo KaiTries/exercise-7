@@ -115,7 +115,7 @@ public:
 
 int main() {
     std::mt19937 generator(1);
-    const int ants = 48, iterations = 25, iterations_per_level = 10;
+    const int ants = 48, iterations = 20, iterations_per_level = 50;
     const std::vector<double> alphas = {0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};
     const std::vector<double> betas = {1,1.2,1.5,1.7,2,2.5,3,3.5,4,4.5,5,5.5,6};
     const std::vector<double> rhos = {0.3,0.4,0.5,0.6,0.7,0.8};
