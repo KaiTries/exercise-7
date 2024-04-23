@@ -36,7 +36,7 @@ void display_progress_and_results(
     std::cout << "Best Distance: " << best_distance << " (α=" << best_alpha << ", β=" << best_beta << ", ρ=" << best_rho << ") | Best Average Distance:" << best_average_distance << " (α=" << best_average_alpha << ", β=" << best_average_beta << ", ρ=" << best_average_rho << ")" << std::endl;
 
     // overwrite the the array with the best path
-    std::cout << "Best Path: [";
+    std::cout << "Best Path: ";
     for (auto city : best_solution) {
         std::cout << city << " ";
     }
@@ -55,6 +55,8 @@ void display_progress_and_results(
     std::string arrow = ">";
     if (current_iteration == total_iterations) {
         std::cout << "[" << std::string(pos, '=') << "] " << std::fixed << std::setprecision(2) << percentage << "%";
+    } else if (percentage < 10) {
+        std::cout << "[" << std::string(pos, '=') << arrow << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "%  ";
     } else {
         std::cout << "[" << std::string(pos, '=') << arrow << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "% ";
     }
@@ -114,11 +116,10 @@ public:
 
 
 int main() {
-    std::mt19937 generator(1);
-    const int ants = 48, iterations = 20, iterations_per_level = 50;
-    const std::vector<double> alphas = {0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};
-    const std::vector<double> betas = {1,1.2,1.5,1.7,2,2.5,3,3.5,4,4.5,5,5.5,6};
-    const std::vector<double> rhos = {0.3,0.4,0.5,0.6,0.7,0.8};
+    const int ants = 48, iterations = 100, iterations_per_level = 10;
+    const std::vector<double> alphas = {0.68,0.69,0.7,0.71,0.72,0.73};
+    const std::vector<double> betas = {5};
+    const std::vector<double> rhos = {0.5,0.52,0.53,0.55,0.57,0.58,0.6};
 
     double best_distance = std::numeric_limits<double>::infinity();
     double best_average_distance = std::numeric_limits<double>::infinity();
