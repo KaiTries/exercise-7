@@ -28,7 +28,21 @@ Because it was still slow i decided to rewrite the source code in c++. To try ou
 
 ### Task 1.1
 The initialize_pheromone_map() for initializing pheromone trails based on the ACO algorithm was implemented 
-[here](C_version/environment.cpp#L66).
+[here](C_version/environment.cpp#L66). It initializes the pheromone of each edge to be ant_population / total_cost. Where the total_cost is the result of a nearest_neighbour heuristic with a random starting node.
+
+### Task 1.2
+The update_pheromone_map() is implemented [here](C_version/environment.cpp#L125). It first goes through all edges and evaporates the existing pheromones according to the evaporation rate rho. Then it goes through all the ants and for each ant it goes through all paths that this ant took. Each path gets deposited the specified amount -> 1 / distance_travelled_by_ant.
+
+### Task 2.1
+The function get_distance() is implemented [here](C_version/environment.cpp#L104). It is implemented in the environment and not the ant itself, the ant can just call this function through its environment. It made more sense in the environment class because it was used to build the distances. It implements the pseudo euclidian distance as specified in the paper. 
+
+The select_path() is implemented [here](C_version/Ant.cpp#L76). It receives a vector of nodes that have not been visited yet, as well as the precomputed probability matrix for all edges. It reserves space for another vector that will hold the probabilities for all the not yet visited nodes. It then iterates through all not yet visited nodes, summing it up and setting the probabilities for each. Then it iterates over the probabilities again dividing by the sum of all probabilities. It then picks a random neighbour according to the probabilities we calculated above. 
+
+### Task 2.2
+The run() is implemented [here](C_version/Ant.cpp#L35). The run first clears all relevant variables. Then it creates the vector containing all not yet visited nodes (which at this point are all the nodes except the initial one). Next it precomputes the probability matrix for this run. Then it will loop until all nodes have been visited. After that it will connect back to the starting node and finish the run.
+
+### Task 2.3 
+the solve() is implemented [here](C_version/Ant-colony.cpp#L93). It iterates through all iterations. For each iteration it goes through all ants and calls the run() function. If any ant has explored a new shortest path the variables are updated. Once all ants have finished their run, the environment updates the pheromone map.
 
 
 ## HOW TO RUN
