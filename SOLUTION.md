@@ -7,25 +7,6 @@ To counteract this I am running the same configuration multiple times.
 
 I have put significantly more effort into the C version, so for a better experience I recommend trying out that version. It is pretty simple to set up you only need cmake.
 
-## Optimizations - Python
-Due to the nature of the problem, the computer has to do a lot of computations on vectors. So I implemented most of the vital parts with numpy to utilize vectorized operations.
-Additionally I precomputed some aspects as the space / time tradeoff was worth it. I significantly reduced the computation time this way.
-
-### Ant
-In the ant i realized that I can precompute the entire probability matrix for each run. Since the distances are static either way, we can easily just have the distance heuristic precomputed.
-Additionally, the pheromones only change after an iteration, so for each run() cycle it stays the same. That means we can use numpy to directly compute the probability for each edge at once.
-This is done in the precompute_probability_matrix() method. Because we need each probability either way it is also not a waste to do it this way. 
-
-Also since we now have the probabilities in a numpy array we can collect the next node through vectorized numpy operations as well, this is done in the select_path() method.
-
-### Environment
-In the environment I unpack the tsplib95 problem and create two numpy arrays. One array for the distances and one array for the pheromone levels. With these two numpy arrays we can do all computations
-efficiently. The initialization is not that import for the overall performance. Overall for performance the ant is much more vital since most of the computation happens there. Nevertheless the update_pheromone_map()
-function gets called frequently as well. Here we can utilize vectorized computation for the evaporation. 
-
-## Optimizations - C++
-Because it was still slow i decided to rewrite the source code in c++. To try out the c++ version either just start the executable in the release package or compile like this:
-
 ## HOW TO RUN
 ### Compile and build yourself
 ```bash
@@ -46,13 +27,42 @@ cd /release # make sure you are in the release folder
 * Make sure to paste the att48.tsp file into the same folder as the .exe, since it expects the problem file to be in the same folder otherwise it wont find it.
 * If you have an incompatible operating systems for the binaries you have to compile the program yourself.
 
-### Environment - C
-For the environment to work in c++, I had to create my own Edge and Node structures. This also allowed my to directly add the pheromone level and distance to the edge structure.
-The Environment class itself is similar to the python implemenation. Just that we do not save the problem itself, but parse it directly and only keep a list of nodes and edges.
+## Optimizations - C++
+Because it was still slow i decided to rewrite the source code in c++. To try out the c++ version either just start the executable in the release package or compile like this:
 
-### Ant - C
-The same goes for the ant in the c++ implementation. The select_path() in the c++ version more closely resembles the actual math formulation.
+### Task 1.1
+The initialize_pheromone_map() for initializing pheromone trails based on the ACO algorithm was implemented 
+[here](C_version/environment.cpp#L66). It initializes the pheromone of each edge to be ant_population / total_cost. Where the total_cost is the result of a nearest_neighbour heuristic with a random starting node.
 
+### Task 1.2
+The update_pheromone_map() is implemented [here](C_version/environment.cpp#L125). It first goes through all edges and evaporates the existing pheromones according to the evaporation rate rho. Then it goes through all the ants and for each ant it goes through all paths that this ant took. Each path gets deposited the specified amount -> 1 / distance_travelled_by_ant.
+
+### Task 2.1
+The function get_distance() is implemented [here](C_version/environment.cpp#L104). It is implemented in the environment and not the ant itself, the ant can just call this function through its environment. It made more sense in the environment class because it was used to build the distances. It implements the pseudo euclidian distance as specified in the paper. 
+
+The select_path() is implemented [here](C_version/Ant.cpp#L76). It receives a vector of nodes that have not been visited yet, as well as the precomputed probability matrix for all edges. It reserves space for another vector that will hold the probabilities for all the not yet visited nodes. It then iterates through all not yet visited nodes, summing it up and setting the probabilities for each. Then it iterates over the probabilities again dividing by the sum of all probabilities. It then picks a random neighbour according to the probabilities we calculated above. 
+
+### Task 2.2
+The run() is implemented [here](C_version/Ant.cpp#L35). The run first clears all relevant variables. Then it creates the vector containing all not yet visited nodes (which at this point are all the nodes except the initial one). Next it precomputes the probability matrix for this run. Then it will loop until all nodes have been visited. After that it will connect back to the starting node and finish the run.
+
+### Task 2.3 
+the solve() is implemented [here](C_version/Ant-colony.cpp#L93). It iterates through all iterations. For each iteration it goes through all ants and calls the run() function. If any ant has explored a new shortest path the variables are updated. Once all ants have finished their run, the environment updates the pheromone map.
+
+## Optimizations - Python
+Due to the nature of the problem, the computer has to do a lot of computations on vectors. So I implemented most of the vital parts with numpy to utilize vectorized operations.
+Additionally I precomputed some aspects as the space / time tradeoff was worth it. I significantly reduced the computation time this way.
+
+### Ant
+In the ant i realized that I can precompute the entire probability matrix for each run. Since the distances are static either way, we can easily just have the distance heuristic precomputed.
+Additionally, the pheromones only change after an iteration, so for each run() cycle it stays the same. That means we can use numpy to directly compute the probability for each edge at once.
+This is done in the precompute_probability_matrix() method. Because we need each probability either way it is also not a waste to do it this way. 
+
+Also since we now have the probabilities in a numpy array we can collect the next node through vectorized numpy operations as well, this is done in the select_path() method.
+
+### Environment
+In the environment I unpack the tsplib95 problem and create two numpy arrays. One array for the distances and one array for the pheromone levels. With these two numpy arrays we can do all computations
+efficiently. The initialization is not that import for the overall performance. Overall for performance the ant is much more vital since most of the computation happens there. Nevertheless the update_pheromone_map()
+function gets called frequently as well. Here we can utilize vectorized computation for the evaporation. 
 
 ## Task 3
 I tested the different variations empirically. The different combinations were:
