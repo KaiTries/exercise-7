@@ -23,9 +23,18 @@ cd /release # make sure you are in the release folder
 ./AntColonyOptimization_Arm64 # executes the program for Mac
 ./AntColonyOptimization_Win64.exe # executes the program for windows
 ```
+#### the binary has the following settings
+```cpp
+    const int ants = 48, iterations = 100, iterations_per_level = 10;
+    const std::vector<double> alphas = {0.68,0.69,0.7,0.71,0.72,0.73};
+    const std::vector<double> betas = {5};
+    const std::vector<double> rhos = {0.5,0.52,0.53,0.55,0.57,0.58,0.6};
+```
+
 
 * Make sure to paste the att48.tsp file into the same folder as the .exe, since it expects the problem file to be in the same folder otherwise it wont find it.
 * If you have an incompatible operating systems for the binaries you have to compile the program yourself.
+* Make sur your terminal is wide enough since! The program reprints 3 lines so if it displays more than 3 lines it will mess up the reprint!
 
 ## Optimizations - C++
 Because it was still slow i decided to rewrite the source code in c++. To try out the c++ version either just start the executable in the release package or compile like this:
@@ -65,18 +74,20 @@ efficiently. The initialization is not that import for the overall performance. 
 function gets called frequently as well. Here we can utilize vectorized computation for the evaporation. 
 
 ## Task 3
-I tested the different variations empirically. The different combinations were:
+I tested the different variations empirically.
 ```cpp
     ants = 48, iterations = 50, iterations_per_level = 10;
     alphas = {0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};
     betas = {1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3};
     rhos = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9};
 ```
-for each combination I ran the simulation 10 times.
-Each Colony was filled with 48 ants and went through 50 iterations.
+Each Colony has 48 ants and will run for 50 iterations. This process is repeated 10 times for each combination of alpha, beta and rho. 
+    
+    ant.run() calls -> 48 * 13 * 16 * 9 * 10 * 50
 
+Each time an ant runs it will call the select_path 48 times as well, this results in over 2 billion calls to select_path. Which is excatly why it was important to switch to c++ and to optimize the logic in the select_path function.
 
-![Interactive Configuration](gif_1.gif)
+![Interactive Configuration](/static/gif_1.gif)
 
 
 While i would have preferred longer iterations, my computer cannot handle more than this
@@ -103,7 +114,7 @@ The shortest path that i found used a beta of 1.5 which is also lower than expec
 
 ### How does the evaporation rate rho affect the performance?
 Rho is the parameter that decides how much pheromone evaporates between tours. So a higher Rho means the pheromones evaporate a lot and the results of the last tour have less influence over current decisions. A lower Rho means, that
-paths explored in the last tour will still have a lot of pheromone deposited on them and therefore a higher probability to be chosen again. 
+paths explored in the last tour will still have a lot of pheromone deposited on them and therefore a higher probability to be chosen again. If Rho is one the ants are basically memory less, since all the pheromones instantly evaporate, if rho is one then it does not matter what alpha is.
 * Lower Rho values mean higher base importance of pheromone
 * Higher Rho values mean less base importance of pheromone
 
@@ -111,11 +122,76 @@ Since in the path selection the pheromone level of the path is taken to the powe
 
 With my shortest path, It was found using a rho of 0.4. This is again just slightly under the standard of 0.5. Indicating, that it was helpful that the pheromone evaporated just a little bit slower.
 
-### Shorest Path
+### Shortest Path
+![Image](/static/10712.png)
 The overall shortest path that i found was 10712 with the values: alpha = 1, beta = 1.5, rho = 0.4. 
 This shows that the ants relied both on the pheromone and the distance between the nodes. Since the beta is just 0.5 larger, it means that the ants relied a little bit more on the distance between nodes than on the pheromone between them. But since the evaporation rate is lower than usual and the difference between alpha and beta is not that large, overall the ants seem to have found that both pheromones and the distance between nodes are rhoughly as important as eachother. 
 
-![Interactive Configuration](gif_1.gif)
+I have also achieved a 10733 with: alpha = 1.1, beta = 6, and p = 0,4.
+
+![Image](/static/10733.png)
+
+### Change of Strategy
+![Image](/static/newStrat.png)
+I realized that just going through iterations and only collecting the best distance just puts me in the crosshair of chance. That is why I added also a display for the best average distance and the alpha, beta, and rho used to achieve it. Then i decreased the iterations that the ants ran but in increased the amount of times a combination is run. Now each Colony goes through 20 iterations but does so 50 times on the same settings. This way I can get a more robust reading of the effectiveness of the combinations. 
+```cpp
+    std::mt19937 generator(1);
+    const int ants = 48, iterations = 20, iterations_per_level = 50;
+    const std::vector<double> alphas = {0.1,0.2,0.3,0.4,0.5,0.6,0.7};
+    const std::vector<double> betas = {4,5,6,7,8,9,10};
+    const std::vector<double> rhos = {0.3,0.4,0.5,0.6,0.7,0.8};
+```
+I tried several combinations and found through testing that the alpha value is generally pretty low while the beta value is generally pretty high:
+
+    avg_distance: 11252 - alpha=0.5, beta=8, rho=0.8
+    avg_distance: 11252 - alpha=0.8, beta=6, rho=0.7
+    avg_distance: 11279 - alpha=0.5, beta=7, rho=0.4
+    avg_distance: 11288 - alpha=1.0, beta=9, rho=0.3
+
+Through much more texting I realized that with only 20 iterations the best solutions are those that heavily favor the distance. Meaning that there is just not enough time to build up a good network of pheromones. So I again changed the hyperparameters to test this hypothesis:
+```cpp
+    std::mt19937 generator(1);
+    const int ants = 48, iterations = 100, iterations_per_level = 100; // increased iterations from 20 -> 100 and iterations_per_level from 50 -> 100
+    const std::vector<double> alphas = {1};
+    const std::vector<double> betas = {2,3,4,5};
+    const std::vector<double> rhos = {0.5};
+```
+I increased the iterations a lot as well as the iterations_per_level to get some more robust readings for the standard recommended values. These were the results:
+
+    avg_distance: 11278 - alpha=1, beta=2, rho=0.5
+    avg_distance: 11221 - alpha=1, beta=3, rho=0.5
+    avg_distance: 11209 - alpha=1, beta=4, rho=0.5
+    avg_distance: >11209 - alpha=1, beta=5, rho=0.5
+
+tested this setup with multiple seeds and always got the highest average distane with a beta of 4 around 11206ish.
+So I now fixed the alpha and beta to 1 & 4 and changed the evaporation rate a bit.
+
+    avg_distance: 11216 - alpha=1, beta=4, rho=0.3
+    avg_distance: 11202 - alpha=1, beta=4, rho=0.4
+    avg_distance: >11202 - alpha=1, beta=4, rho=0.5
+    avg_distance: >11202 - alpha=1, beta=4, rho=0.6
+    avg_distance: >11202 - alpha=1, beta=4, rho=0.7
+    avg_distance: >11202 - alpha=1, beta=4, rho=0.8
+
+This was also run several times confirming rho of 0.4 to be the most optimal. I now adjust the alpha a bit
+
+    avg_distance: 11325 - alpha=0.5, beta=4, rho=0.4
+    avg_distance: 11173 - alpha=0.8, beta=4, rho=0.4
+    avg_distance: 11163 - alpha=0.9, beta=4, rho=0.4
+    avg_distance: >11163 - alpha=1.0, beta=4, rho=0.4
+    avg_distance: >11163 - alpha=1.1, beta=4, rho=0.4
+    avg_distance: >11163 - alpha=1.2, beta=4, rho=0.4
+    avg_distance: >11163 - alpha=1.3, beta=4, rho=0.4
+    avg_distance: >11163 - alpha=1.5, beta=4, rho=0.4
+
+These are some of the final results that i got, the average result here is the important part
+![Image](/static/avg11100.png)
+![Image](/static/avg11063.png)
+
+
+
+
+
 
 
 
@@ -129,3 +205,5 @@ The adding of cities would have to happen after or before the ants are on tour.
     If we add a significant amount of new nodes, it might be helpful to reinitialize the entire graph. 
 
 
+### improvements
+If i had more time i would have liked to make the data more illustrative. Saving all results of all iterations, to show in a 3d graph the average paths for each combination. additionally this could be expanded to handle other tsps as well. It also would be beneficial to see if there are measures that can indicate that a certain combination has leveled out, and if that happens if we can skip some iterations to save compute.

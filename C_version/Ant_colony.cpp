@@ -13,6 +13,10 @@ void display_progress_and_results(
     std::vector<int> best_solution,
     int current_iteration, 
     int total_iterations, 
+    double best_average_distance,
+    double best_average_alpha,
+    double best_average_beta,
+    double best_average_rho,
     double best_distance, 
     double best_alpha, 
     double best_beta, 
@@ -29,14 +33,14 @@ void display_progress_and_results(
     }
     // Overwrite the best distance and parameter line
     std::cout << "\r" << std::flush;
-    std::cout << "Best Distance: " << best_distance << " (α=" << best_alpha << ", β=" << best_beta << ", ρ=" << best_rho << ")" << std::endl;
+    std::cout << "Best Distance: " << best_distance << " (α=" << best_alpha << ", β=" << best_beta << ", ρ=" << best_rho << ") | Best Average Distance:" << best_average_distance << " (α=" << best_average_alpha << ", β=" << best_average_beta << ", ρ=" << best_average_rho << ")" << std::endl;
 
     // overwrite the the array with the best path
     std::cout << "Best Path: ";
     for (auto city : best_solution) {
         std::cout << city << " ";
     }
-    std::cout << std::endl;
+    std::cout <<std::endl;
 
 
 
@@ -51,6 +55,8 @@ void display_progress_and_results(
     std::string arrow = ">";
     if (current_iteration == total_iterations) {
         std::cout << "[" << std::string(pos, '=') << "] " << std::fixed << std::setprecision(2) << percentage << "%";
+    } else if (percentage < 10) {
+        std::cout << "[" << std::string(pos, '=') << arrow << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "%  ";
     } else {
         std::cout << "[" << std::string(pos, '=') << arrow << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "% ";
     }
@@ -110,27 +116,30 @@ public:
 
 
 int main() {
-    const int ants = 48, iterations = 50, iterations_per_level = 10;
-    const std::vector<double> alphas = {0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};
-    const std::vector<double> betas = {1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3};
-    const std::vector<double> rhos = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9};
+    const int ants = 48, iterations = 100, iterations_per_level = 10;
+    const std::vector<double> alphas = {0.68,0.69,0.7,0.71,0.72,0.73};
+    const std::vector<double> betas = {5};
+    const std::vector<double> rhos = {0.5,0.52,0.53,0.55,0.57,0.58,0.6};
 
     double best_distance = std::numeric_limits<double>::infinity();
+    double best_average_distance = std::numeric_limits<double>::infinity();
     std::vector<int> best_solution;
 
     for (int i = 1; i <= 48; ++i) {
         best_solution.push_back(i);
     }
-    double alpha_best, beta_best, rho_best;
+    double alpha_best = 0, beta_best = 0, rho_best = 0;
+    double best_average_alpha = 0, best_average_beta = 0, best_average_rho = 0;
 
-    display_progress_and_results(false,best_solution,0,iterations_per_level,best_distance,0,0,0,alphas[0],betas[0],rhos[0]);
+    display_progress_and_results(false,best_solution,0,iterations_per_level,best_average_distance,best_average_alpha,best_average_beta,best_average_rho,best_distance,alpha_best,beta_best,rho_best,alphas[0],betas[0],rhos[0]);
     for (auto alpha : alphas) {
         for (auto beta : betas) {
             for (auto rho : rhos) {
+                int total_distance = 0;
                 for (int i = 1; i <= iterations_per_level; ++i) {
                     AntColony colony(ants, iterations, alpha, beta, rho);
                     auto [solution, distance] = colony.solve();
-
+                    total_distance += distance;
                     if (distance < best_distance) {
                         best_distance = distance;
                         best_solution = solution;
@@ -138,7 +147,14 @@ int main() {
                         beta_best = beta;
                         rho_best = rho;
                     }
-                    display_progress_and_results(true,best_solution,i,iterations_per_level,best_distance,alpha_best,beta_best,rho_best,alpha,beta,rho);
+                    display_progress_and_results(true,best_solution,i,iterations_per_level,best_average_distance,best_average_alpha,best_average_beta,best_average_rho,best_distance,alpha_best,beta_best,rho_best,alpha,beta,rho);
+                }
+                double average_distance = static_cast<double>(total_distance) / iterations_per_level;
+                if (average_distance < best_average_distance) {
+                    best_average_distance = average_distance;
+                    best_average_alpha = alpha;
+                    best_average_beta = beta;
+                    best_average_rho = rho;
                 }
             }
         }
