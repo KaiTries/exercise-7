@@ -5,7 +5,7 @@ It logs the initial pheromone of the current colony. Other than that it will upd
 I am running multiple runs per configuration, because due to computational limitations I cannot run larger colonies / longer iterations. So I am subject to larger deviations. 
 To counteract this I am running the same configuration multiple times.
 
-## Optimizations
+## Optimizations - Python
 Due to the nature of the problem, the computer has to do a lot of computations on vectors. So I implemented most of the vital parts with numpy to utilize vectorized operations.
 Additionally I precomputed some aspects as the space / time tradeoff was worth it. I significantly reduced the computation time this way.
 
@@ -20,6 +20,26 @@ Also since we now have the probabilities in a numpy array we can collect the nex
 In the environment I unpack the tsplib95 problem and create two numpy arrays. One array for the distances and one array for the pheromone levels. With these two numpy arrays we can do all computations
 efficiently. The initialization is not that import for the overall performance. Overall for performance the ant is much more vital since most of the computation happens there. Nevertheless the update_pheromone_map()
 function gets called frequently as well. Here we can utilize vectorized computation for the evaporation. 
+
+## Optimizations - C++
+Because it was still slow i decided to rewrite the source code in c++. To try out the c++ version either just start the executable in the release package or compile like this:
+```bash
+cd /C_version # make sure you are in the C_version folder
+mkdir build # create build folder for C
+cd /build # switch into build folder
+cmake .. # Compile and build the necessary code
+cmake --build . --config Release # creates the executable
+./AntColonyOptimization # execute the program
+```
+* Make sure to paste the att48.tsp file into the same folder as the .exe, since it expects the problem file to be in the same folder otherwise it wont find it.
+
+### Environment - C
+For the environment to work in c++, I had to create my own Edge and Node structures. This also allowed my to directly add the pheromone level and distance to the edge structure.
+The Environment class itself is similar to the python implemenation. Just that we do not save the problem itself, but parse it directly and only keep a list of nodes and edges.
+
+### Ant - C
+The same goes for the ant in the c++ implementation. The select_path() in the c++ version more closely resembles the actual math formulation.
+
 
 ## Task 3
 I tested the different variations empirically. The different combinations were:

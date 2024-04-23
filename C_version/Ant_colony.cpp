@@ -2,10 +2,10 @@
 #include <vector>
 #include <limits>
 #include <random>
-#include <cmath> // For std::pow, std::numeric_limits<double>::infinity()
+#include <cmath>
 
-#include "Ant.h"  // Assume Ant class is defined in Ant.h
-#include "Environment.h" // Assume Environment class is defined in Environment.h
+#include "ant.h"
+#include "environment.h"
 
 
 class AntColony {
