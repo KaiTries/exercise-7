@@ -111,7 +111,7 @@ Since in the path selection the pheromone level of the path is taken to the powe
 
 With my shortest path, It was found using a rho of 0.4. This is again just slightly under the standard of 0.5. Indicating, that it was helpful that the pheromone evaporated just a little bit slower.
 
-### Shorest Path
+### Shortest Path
 The overall shortest path that i found was 10712 with the values: alpha = 1, beta = 1.5, rho = 0.4. 
 This shows that the ants relied both on the pheromone and the distance between the nodes. Since the beta is just 0.5 larger, it means that the ants relied a little bit more on the distance between nodes than on the pheromone between them. But since the evaporation rate is lower than usual and the difference between alpha and beta is not that large, overall the ants seem to have found that both pheromones and the distance between nodes are rhoughly as important as eachother. 
 
