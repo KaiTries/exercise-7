@@ -73,37 +73,32 @@ double Ant::get_distance(int i, int j) {
 
 
 int Ant::select_path(const vector<int>& not_yet_visited, const vector<vector<double>>& probabilities) {
-    const std::vector<double>& probabilities_for_current = probabilities[current_location - 1];
-    std::vector<double> cumulative_probabilities;
-    cumulative_probabilities.reserve(not_yet_visited.size());
+    std::vector<double> _probabilities(not_yet_visited.size());
 
+    double sum_probabilities = 0.0;
 
-    double cumulative_sum = 0.0;
-
-    for (int city : not_yet_visited) {
-        double prob = probabilities_for_current[city - 1];
-        cumulative_sum += prob;
-        cumulative_probabilities.push_back(cumulative_sum);
+    for (size_t index = 0; index < not_yet_visited.size(); ++index) {
+        int j = not_yet_visited[index];
+        double probability = probabilities[current_location - 1][j - 1];
+        _probabilities[index] = probability;
+        sum_probabilities += _probabilities[index];
     }
 
-    // Normalize the last element to 1, in case of floating-point arithmetic issues
-    if (!cumulative_probabilities.empty()) {
-        double last_value = cumulative_probabilities.back();
-        for (double& value : cumulative_probabilities) {
-            value /= last_value;
+    for (double &prob : _probabilities) {
+        prob /= sum_probabilities;
+    }
+
+    std::uniform_real_distribution<double>dist(0.0,1.0);
+    double choice = dist(gen);
+    double cumulative = 0.0;
+
+    for (size_t index = 0; index < _probabilities.size(); ++index) {
+        cumulative += _probabilities[index];
+        if (choice <= cumulative) {
+            return not_yet_visited[index];
         }
     }
-
-    std::uniform_real_distribution<double> dis(0.0, 1.0);
-    double random_number = dis(gen);
-
-    for (size_t i = 0; i < cumulative_probabilities.size(); ++i) {
-        if (random_number <= cumulative_probabilities[i]) {
-            return not_yet_visited[i];
-        }
-    }
-
-    return not_yet_visited.back(); 
+    return not_yet_visited.back();
 }
 
 
