@@ -8,15 +8,38 @@
 #include "ant.h"
 #include "environment.h"
 
-void display_progress_and_results(int current_iteration, 
-int total_iterations, 
-double best_distance, 
-double best_alpha, 
-double best_beta, 
-double best_rho,
-double alpha,
-double beta,
-double rho) {
+void display_progress_and_results(
+    bool flag,
+    std::vector<int> best_solution,
+    int current_iteration, 
+    int total_iterations, 
+    double best_distance, 
+    double best_alpha, 
+    double best_beta, 
+    double best_rho,
+    double alpha,
+    double beta,
+    double rho
+) {
+    if (flag) {
+        // Move cursor up three lines
+        std::cout << "\x1b[3A";
+    }
+    // Overwrite the best distance and parameter line
+    std::cout << "\r" << std::flush;
+    std::cout << "Best Distance: " << best_distance << " (α=" << best_alpha << ", β=" << best_beta << ", ρ=" << best_rho << ")" << std::endl;
+
+    // overwrite the the array with the best path
+    std::cout << "Best Path: ";
+    for (auto city : best_solution) {
+        std::cout << city << " ";
+    }
+    std::cout << std::endl;
+
+
+
+
+    // Overwrite the progress and current parameter line
     std::cout << "\r" << std::flush;
 
     double percentage = 100.0 * current_iteration / total_iterations;
@@ -29,8 +52,10 @@ double rho) {
     } else {
         std::cout << "[" << std::string(pos, '=') << arrow << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "% ";
     }
-    std::cout << " Current Parameters: (α=" << alpha << ", β=" << beta << ", ρ=" << rho << ")" << std::flush;
-    std::cout << " Best Distance: " << best_distance << " (α=" << best_alpha << ", β=" << best_beta << ", ρ=" << best_rho << ")" << std::flush;
+    std::cout << " Current Parameters: (α=" << alpha << ", β=" << beta << ", ρ=" << rho << ")" << std::endl;
+
+    // Flush to make sure everything is printed out
+    std::cout << std::flush;
 
 }
 
@@ -90,8 +115,13 @@ int main() {
 
     double best_distance = std::numeric_limits<double>::infinity();
     std::vector<int> best_solution;
+
+    for (int i = 1; i <= 48; ++i) {
+        best_solution.push_back(i);
+    }
     double alpha_best, beta_best, rho_best;
 
+    display_progress_and_results(true,best_solution,0,iterations_per_level,best_distance,0,0,0,alphas[0],betas[0],rhos[0]);
     for (auto alpha : alphas) {
         for (auto beta : betas) {
             for (auto rho : rhos) {
@@ -106,7 +136,7 @@ int main() {
                         beta_best = beta;
                         rho_best = rho;
                     }
-                    display_progress_and_results(i,iterations_per_level,best_distance,alpha_best,beta_best,rho_best,alpha,beta,rho);
+                    display_progress_and_results(true,best_solution,i,iterations_per_level,best_distance,alpha_best,beta_best,rho_best,alpha,beta,rho);
                 }
             }
         }
