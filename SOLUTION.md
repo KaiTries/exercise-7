@@ -26,6 +26,7 @@ cd /release # make sure you are in the release folder
 
 * Make sure to paste the att48.tsp file into the same folder as the .exe, since it expects the problem file to be in the same folder otherwise it wont find it.
 * If you have an incompatible operating systems for the binaries you have to compile the program yourself.
+* Make sur your terminal is wide enough since! The program reprints 3 lines so if it displays more than 3 lines it will mess up the reprint!
 
 ## Optimizations - C++
 Because it was still slow i decided to rewrite the source code in c++. To try out the c++ version either just start the executable in the release package or compile like this:
@@ -115,8 +116,11 @@ Since in the path selection the pheromone level of the path is taken to the powe
 With my shortest path, It was found using a rho of 0.4. This is again just slightly under the standard of 0.5. Indicating, that it was helpful that the pheromone evaporated just a little bit slower.
 
 ### Shortest Path
+![Interactive Configuration](gif_1.gif)
 The overall shortest path that i found was 10712 with the values: alpha = 1, beta = 1.5, rho = 0.4. 
 This shows that the ants relied both on the pheromone and the distance between the nodes. Since the beta is just 0.5 larger, it means that the ants relied a little bit more on the distance between nodes than on the pheromone between them. But since the evaporation rate is lower than usual and the difference between alpha and beta is not that large, overall the ants seem to have found that both pheromones and the distance between nodes are rhoughly as important as eachother. 
+
+I have also achieved a 10733 with: alpha = 1.1, beta = 6, and p = 0,4.
 
 ![Interactive Configuration](gif_1.gif)
 
@@ -133,4 +137,4 @@ The adding of cities would have to happen after or before the ants are on tour.
 
 
 ### improvements
-If i had more time i would have liked to make the data more illustrative. Saving all results of all iterations, to show in a 3d graph the average paths for each combination. additionally this could be expanded to handle other tsps as well. 
+If i had more time i would have liked to make the data more illustrative. Saving all results of all iterations, to show in a 3d graph the average paths for each combination. additionally this could be expanded to handle other tsps as well. It also would be beneficial to see if there are measures that can indicate that a certain combination has leveled out, and if that happens if we can skip some iterations to save compute.
