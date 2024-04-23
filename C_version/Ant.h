@@ -14,6 +14,7 @@ public:
     std::vector<std::vector<double>> probabilities;
     std::vector<std::pair<int, int>> visited_edges;
     Environment* environment;
+    static std::mt19937 gen;
 
     Ant(double _alpha, double _beta, int initial_location);
     void join(Environment* env);

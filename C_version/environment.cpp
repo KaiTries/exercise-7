@@ -11,6 +11,10 @@
 #include "ant.h"
 
 
+std::mt19937 Environment::gen(std::random_device{}());
+
+
+
 Environment::Environment(double _rho, int _ant_population) 
     : rho(_rho), ant_population(_ant_population) {
     // print the number of cities
@@ -46,7 +50,6 @@ void Environment::load_problem(const std::string& filename) {
     // Create edges
     for (int i = 1; i <= n; ++i) {
         for (int j = i + 1; j <= n; ++j) {
-            // i want to set the distance to the actual distance between the two node with id i and j
             int distance = get_distance(i - 1, j - 1);
             edges.push_back({i, j, distance, 0});
         }
@@ -54,8 +57,9 @@ void Environment::load_problem(const std::string& filename) {
 }
 
 void Environment::initialize_pheromone_values() {
-    // initialize it with a nearest neighbour heuristic
-    int current_node = 1;
+    std::uniform_int_distribution<> distrib(1, 48); 
+    int current_node = distrib(gen);  // Generates a random start node between 1 and 48
+
     int cost = 0;
     std::vector<int> visited;
     visited.push_back(current_node);
@@ -79,6 +83,8 @@ void Environment::initialize_pheromone_values() {
         if (next_node != -1) current_node = next_node;
     }
 
+    cost += get_distance(visited.back() - 1, visited.front() - 1);
+
     // Calculate the initial pheromone value
     double initial_pheromone = static_cast<double>(ant_population) / cost;
 
@@ -90,35 +96,53 @@ void Environment::initialize_pheromone_values() {
 }
 
 double Environment::get_distance(int i, int j) {
-    // Calculate and return the distance.
-    // the parameters are the ids of the two nodes
+    // calculate the pseudo euclidean distance
+    // Ensure i < j to conform with how edges are stored
     auto& node1 = nodes[i];
     auto& node2 = nodes[j];
-    double dist = std::sqrt(std::pow(node1.x - node2.x, 2) + std::pow(node1.y - node2.y, 2));
-    return std::round(dist);
+
+    if (node1.id != i + 1 || node2.id != j + 1) {
+        std::cerr << "Error: node id does not match index" << std::endl;
+    }
+
+    double xd = node1.x - node2.x;
+    double yd = node1.y - node2.y;
+
+    double rij = std::sqrt((xd * xd + yd * yd) / 10.0);
+    double tij = std::round(rij);
+
+    if (tij < rij) {
+        return tij + 1;
+    }
+    return tij;
 }
 
 void Environment::update_pheromone_map(const std::vector<Ant>& ants) {
     // Evaporate old pheromone
     for (auto &edge : edges) {
         edge.pheromone *= (1.0 - rho);
-        std::cout << "Pheromone value before: " << edge.pheromone << std::endl;
     }
 
     // Add new pheromone based on the ants' paths
     for (auto &ant : ants) {
         double additional_pheromone = 1.0 / ant.travelled_distance;
+        auto& visited_locations = ant.get_visited_locations();
 
-        for (size_t i = 0; i < ant.get_visited_locations().size() - 1; ++i) {
-            int from = ant.get_visited_locations()[i];
-            int to = ant.get_visited_locations()[i + 1];
-            edges[from - 1].pheromone += additional_pheromone;
-            edges[to - 1].pheromone += additional_pheromone;
+        for (size_t k = 0; k < visited_locations.size() - 1; ++k) {
+            int i = visited_locations[k];
+            int j = visited_locations[k + 1];
+            if (i >= j) {
+                std::swap(i, j);
+            }
+
+            int index = ((i - 1) * n) - ((i - 1) * ((i - 1) + 1) / 2);
+            index += ((j - 1) - (i - 1) - 1);
+
+            if (edges[index].from != i || edges[index].to != j) {
+                std::cerr << "Error: edge does not match given from and to" << std::endl;
+            }
+
+            edges[index].pheromone += additional_pheromone;
         }
-    }
-
-    // print the pheromone values
-    for (auto &edge : edges) {
-        std::cout << "Pheromone value after: " << edge.pheromone << std::endl;
     }
 }

@@ -8,6 +8,8 @@
 #include "Environment.h"
 
 using namespace std;
+std::mt19937 Ant::gen(std::random_device{}());
+
 
 Ant::Ant(double _alpha, double _beta, int initial_location) 
     : alpha(_alpha), beta(_beta), current_location(initial_location), travelled_distance(0.0) {}
@@ -17,21 +19,14 @@ vector<vector<double>> Ant::precompute_probability_matrix() {
 
     vector<vector<double>> probabilities(environment->n, vector<double>(environment->n, 0.0));
 
-    // the probability of going from i to j is given by the formula
-    // p_ij = (pheromone_jj ^alpa) * (1/d_ij ^ beta) / sum(pheromone_jj ^ alpha * 1/d_ij ^ beta)
-    double sum = 0.0;
+    // calculate the probabilites as
+    // p_ij = (pheromones_ij ** alpha) * (1 / distance_ij ** beta)
+
     for (auto&edge :edges) {
         double pheromone = edge.pheromone;
         double distance = 1.0 / get_distance(edge.from - 1, edge.to - 1);
-        sum += pow(pheromone, alpha) * pow(distance, beta);
-    }
-
-    for (int i = 0; i < environment->n; ++i) {
-        for (int j = 0; j < environment->n; ++j) {
-            double pheromone = edges[i].pheromone;
-            double distance = 1.0 / get_distance(i, j);
-            probabilities[i][j] = (pow(pheromone, alpha) * pow(distance, beta)) / sum;
-        }
+        probabilities[edge.from - 1][edge.to - 1] = pow(pheromone, alpha) * pow(distance, beta);
+        probabilities[edge.to - 1][edge.from - 1] = pow(pheromone, alpha) * pow(distance, beta);
     }
 
     return probabilities;
@@ -78,42 +73,43 @@ double Ant::get_distance(int i, int j) {
 
 
 int Ant::select_path(const vector<int>& not_yet_visited, const vector<vector<double>>& probabilities) {
-    // from the probabilites matrix choose the vector corresponding to the current location
-    // and select the next location based on the probabilities
-    vector<int> choices = not_yet_visited;
-    vector<double> probabilities_for_current_location = probabilities[current_location - 1];
-    vector<double> probabilities_for_choices;
+    const std::vector<double>& probabilities_for_current = probabilities[current_location - 1];
+    std::vector<double> cumulative_probabilities;
+    cumulative_probabilities.reserve(not_yet_visited.size());
 
-    for (int i = 0; i < choices.size(); ++i) {
-        probabilities_for_choices.push_back(probabilities_for_current_location[choices[i] - 1]);
-    }
-    
-    // normalize the probabilities
-    double sum = 0.0;
-    for (auto& prob : probabilities_for_choices) {
-        sum += prob;
+
+    double cumulative_sum = 0.0;
+
+    for (int city : not_yet_visited) {
+        double prob = probabilities_for_current[city - 1];
+        cumulative_sum += prob;
+        cumulative_probabilities.push_back(cumulative_sum);
     }
 
-    vector<double> normalized_probabilities;
-    for (auto& prob : probabilities_for_choices) {
-        normalized_probabilities.push_back(prob / sum);
-    }
-
-    // select the next location based on the probabilities
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<double> dis(0.0, 1.0);
-    double random_number = dis(gen);
-
-    double cumulative_probability = 0.0;
-    for (int i = 0; i < normalized_probabilities.size(); ++i) {
-        cumulative_probability += normalized_probabilities[i];
-        if (random_number <= cumulative_probability) {
-            return choices[i];
+    // Normalize the last element to 1, in case of floating-point arithmetic issues
+    if (!cumulative_probabilities.empty()) {
+        double last_value = cumulative_probabilities.back();
+        for (double& value : cumulative_probabilities) {
+            value /= last_value;
         }
     }
-    return choices.back();
+
+    std::uniform_real_distribution<double> dis(0.0, 1.0);
+    double random_number = dis(gen);
+
+    for (size_t i = 0; i < cumulative_probabilities.size(); ++i) {
+        if (random_number <= cumulative_probabilities[i]) {
+            return not_yet_visited[i];
+        }
+    }
+
+    return not_yet_visited.back(); 
 }
+
+
+
+
+
 
 void Ant::join(Environment* env) {
     environment = env;

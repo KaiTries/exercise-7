@@ -26,6 +26,8 @@ public:
     int n;
     std::vector<Node>nodes;
     std::vector<Edge>edges;
+    static std::mt19937 gen;
+
 
     Environment(double _rho, int _ant_population);
     void initialize_pheromone_values();
