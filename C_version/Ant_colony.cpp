@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <limits>
 #include <random>
@@ -7,6 +8,22 @@
 #include "ant.h"
 #include "environment.h"
 
+void display_progress_and_results(int current_iteration, int total_iterations, double best_distance, double alpha, double beta, double rho) {
+    std::cout << "\r" << std::flush;
+
+    double percentage = 100.0 * current_iteration / total_iterations;
+
+    int bar_width = 50;
+    int pos = bar_width * (current_iteration / static_cast<double>(total_iterations));
+    std::cout << "[" << std::string(pos, '=') << ">" << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "%";
+
+    std::cout << " Best Distance: " << best_distance << " (α=" << alpha << ", β=" << beta << ", ρ=" << rho << ")" << std::flush;
+
+    if (current_iteration == total_iterations) {
+        std::cout << "[" << std::string(pos - 1, '=') << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "%";
+        std::cout << std::endl; // Move to the next line at the end of the process
+    }
+}
 
 class AntColony {
 private:
@@ -69,9 +86,7 @@ int main() {
     for (auto alpha : alphas) {
         for (auto beta : betas) {
             for (auto rho : rhos) {
-                std::cout << "Alpha: " << alpha << " Beta: " << beta << " Rho: " << rho << std::endl;
-
-                for (int i = 0; i < iterations_per_level; ++i) {
+                for (int i = 1; i <= iterations_per_level; ++i) {
                     AntColony colony(ants, iterations, alpha, beta, rho);
                     auto [solution, distance] = colony.solve();
 
@@ -81,9 +96,8 @@ int main() {
                         alpha_best = alpha;
                         beta_best = beta;
                         rho_best = rho;
-
-                        std::cout << "New best distance: " << best_distance << std::endl;
                     }
+                    display_progress_and_results(i,iterations_per_level,best_distance,alpha_best,beta_best,rho_best);
                 }
             }
         }

@@ -98,9 +98,7 @@ void Environment::initialize_pheromone_values() {
 
     for (auto& edge : edges) {
         edge.pheromone = initial_pheromone; // Set the initial pheromone value for each edge
-    }
-    
-    std::cout << "Initial pheromone value: " << initial_pheromone << std::endl;
+    }    
 }
 
 double Environment::get_distance(int i, int j) {
