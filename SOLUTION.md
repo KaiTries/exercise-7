@@ -27,6 +27,7 @@ function gets called frequently as well. Here we can utilize vectorized computat
 Because it was still slow i decided to rewrite the source code in c++. To try out the c++ version either just start the executable in the release package or compile like this:
 
 ## HOW TO RUN
+### Compile and build yourself
 ```bash
 cd /C_version # make sure you are in the C_version folder
 mkdir build # create build folder for C
@@ -35,7 +36,14 @@ cmake .. # Compile and build the necessary code
 cmake --build . --config Release # creates the executable
 ./AntColonyOptimization # execute the program
 ```
+### Run the binary
+```bash
+cd /release # make sure you are in the release folder
+./AntColonyOptimization # executes the program
+```
+
 * Make sure to paste the att48.tsp file into the same folder as the .exe, since it expects the problem file to be in the same folder otherwise it wont find it.
+* The exe was compiled on a mac with the arm64 architecture. If you have an incompatible operating system you have to compile yourself.
 
 ### Environment - C
 For the environment to work in c++, I had to create my own Edge and Node structures. This also allowed my to directly add the pheromone level and distance to the edge structure.
