@@ -7,21 +7,25 @@ To counteract this I am running the same configuration multiple times.
 
 I have put significantly more effort into the C version, so for a better experience I recommend trying out that version. It is pretty simple to set up you only need cmake.
 
-## Optimizations - Python
-Due to the nature of the problem, the computer has to do a lot of computations on vectors. So I implemented most of the vital parts with numpy to utilize vectorized operations.
-Additionally I precomputed some aspects as the space / time tradeoff was worth it. I significantly reduced the computation time this way.
+## HOW TO RUN
+### Compile and build yourself
+```bash
+cd /C_version # make sure you are in the C_version folder
+mkdir build # create build folder for C
+cd /build # switch into build folder
+cmake .. # Compile and build the necessary code
+cmake --build . --config Release # creates the executable
+./AntColonyOptimization # execute the program
+```
+### Run the binary
+```bash
+cd /release # make sure you are in the release folder
+./AntColonyOptimization_Arm64 # executes the program for Mac
+./AntColonyOptimization_Win64.exe # executes the program for windows
+```
 
-### Ant
-In the ant i realized that I can precompute the entire probability matrix for each run. Since the distances are static either way, we can easily just have the distance heuristic precomputed.
-Additionally, the pheromones only change after an iteration, so for each run() cycle it stays the same. That means we can use numpy to directly compute the probability for each edge at once.
-This is done in the precompute_probability_matrix() method. Because we need each probability either way it is also not a waste to do it this way. 
-
-Also since we now have the probabilities in a numpy array we can collect the next node through vectorized numpy operations as well, this is done in the select_path() method.
-
-### Environment
-In the environment I unpack the tsplib95 problem and create two numpy arrays. One array for the distances and one array for the pheromone levels. With these two numpy arrays we can do all computations
-efficiently. The initialization is not that import for the overall performance. Overall for performance the ant is much more vital since most of the computation happens there. Nevertheless the update_pheromone_map()
-function gets called frequently as well. Here we can utilize vectorized computation for the evaporation. 
+* Make sure to paste the att48.tsp file into the same folder as the .exe, since it expects the problem file to be in the same folder otherwise it wont find it.
+* If you have an incompatible operating systems for the binaries you have to compile the program yourself.
 
 ## Optimizations - C++
 Because it was still slow i decided to rewrite the source code in c++. To try out the c++ version either just start the executable in the release package or compile like this:
@@ -44,34 +48,21 @@ The run() is implemented [here](C_version/Ant.cpp#L35). The run first clears all
 ### Task 2.3 
 the solve() is implemented [here](C_version/Ant-colony.cpp#L93). It iterates through all iterations. For each iteration it goes through all ants and calls the run() function. If any ant has explored a new shortest path the variables are updated. Once all ants have finished their run, the environment updates the pheromone map.
 
+## Optimizations - Python
+Due to the nature of the problem, the computer has to do a lot of computations on vectors. So I implemented most of the vital parts with numpy to utilize vectorized operations.
+Additionally I precomputed some aspects as the space / time tradeoff was worth it. I significantly reduced the computation time this way.
 
-## HOW TO RUN
-### Compile and build yourself
-```bash
-cd /C_version # make sure you are in the C_version folder
-mkdir build # create build folder for C
-cd /build # switch into build folder
-cmake .. # Compile and build the necessary code
-cmake --build . --config Release # creates the executable
-./AntColonyOptimization # execute the program
-```
-### Run the binary
-```bash
-cd /release # make sure you are in the release folder
-./AntColonyOptimization_Arm64 # executes the program for Mac
-./AntColonyOptimization_Win64.exe # executes the program for windows
-```
+### Ant
+In the ant i realized that I can precompute the entire probability matrix for each run. Since the distances are static either way, we can easily just have the distance heuristic precomputed.
+Additionally, the pheromones only change after an iteration, so for each run() cycle it stays the same. That means we can use numpy to directly compute the probability for each edge at once.
+This is done in the precompute_probability_matrix() method. Because we need each probability either way it is also not a waste to do it this way. 
 
-* Make sure to paste the att48.tsp file into the same folder as the .exe, since it expects the problem file to be in the same folder otherwise it wont find it.
-* If you have an incompatible operating systems for the binaries you have to compile the program yourself.
+Also since we now have the probabilities in a numpy array we can collect the next node through vectorized numpy operations as well, this is done in the select_path() method.
 
-### Environment - C
-For the environment to work in c++, I had to create my own Edge and Node structures. This also allowed my to directly add the pheromone level and distance to the edge structure.
-The Environment class itself is similar to the python implemenation. Just that we do not save the problem itself, but parse it directly and only keep a list of nodes and edges.
-
-### Ant - C
-The same goes for the ant in the c++ implementation. The select_path() in the c++ version more closely resembles the actual math formulation.
-
+### Environment
+In the environment I unpack the tsplib95 problem and create two numpy arrays. One array for the distances and one array for the pheromone levels. With these two numpy arrays we can do all computations
+efficiently. The initialization is not that import for the overall performance. Overall for performance the ant is much more vital since most of the computation happens there. Nevertheless the update_pheromone_map()
+function gets called frequently as well. Here we can utilize vectorized computation for the evaporation. 
 
 ## Task 3
 I tested the different variations empirically. The different combinations were:
