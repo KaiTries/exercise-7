@@ -32,9 +32,6 @@ double rho) {
     std::cout << " Current Parameters: (α=" << alpha << ", β=" << beta << ", ρ=" << rho << ")" << std::flush;
     std::cout << " Best Distance: " << best_distance << " (α=" << best_alpha << ", β=" << best_beta << ", ρ=" << best_rho << ")" << std::flush;
 
-    if (current_iteration == total_iterations) {
-        std::cout << std::endl; // Move to the next line at the end of the process
-    }
 }
 
 class AntColony {
