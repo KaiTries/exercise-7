@@ -187,6 +187,9 @@ This was also run several times confirming rho of 0.4 to be the most optimal. I 
 These are some of the final results that i got, the average result here is the important part
 ![Image](/static/avg11100.png)
 ![Image](/static/avg11063.png)
+![Image](/static/avg10951.png)
+
+![Image](/static/avgTots.png)
 
 
 
