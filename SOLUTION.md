@@ -65,16 +65,19 @@ efficiently. The initialization is not that import for the overall performance. 
 function gets called frequently as well. Here we can utilize vectorized computation for the evaporation. 
 
 ## Task 3
-I tested the different variations empirically. The different combinations were:
+I tested the different variations empirically.
 ```cpp
+    std::mt19937 generator(1);
     ants = 48, iterations = 50, iterations_per_level = 10;
     alphas = {0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};
     betas = {1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3};
     rhos = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9};
 ```
-for each combination I ran the simulation 10 times.
-Each Colony was filled with 48 ants and went through 50 iterations.
+I initialized the seed to get reproducible results. Each Colony has 48 ants and will run for 50 iterations. This process is repeated 10 times for each combination of alpha, beta and rho. 
+    
+    ant.run() calls -> 48 * 13 * 16 * 9 * 10 * 50
 
+Each time an ant runs it will call the select_path 48 times as well, this results in over 2 billion calls to select_path. Which is excatly why it was important to switch to c++ and to optimize the logic in the select_path function.
 
 ![Interactive Configuration](gif_1.gif)
 
