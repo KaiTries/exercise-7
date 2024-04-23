@@ -24,6 +24,8 @@ void display_progress_and_results(
     if (flag) {
         // Move cursor up three lines
         std::cout << "\x1b[3A";
+    } else {
+        std::cout << std::string(100, ' ') << "\r";  // Assume 100 is more than enough to clear any previous content
     }
     // Overwrite the best distance and parameter line
     std::cout << "\r" << std::flush;
@@ -121,7 +123,7 @@ int main() {
     }
     double alpha_best, beta_best, rho_best;
 
-    display_progress_and_results(true,best_solution,0,iterations_per_level,best_distance,0,0,0,alphas[0],betas[0],rhos[0]);
+    display_progress_and_results(false,best_solution,0,iterations_per_level,best_distance,0,0,0,alphas[0],betas[0],rhos[0]);
     for (auto alpha : alphas) {
         for (auto beta : betas) {
             for (auto rho : rhos) {
