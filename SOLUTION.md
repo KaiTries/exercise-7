@@ -132,3 +132,5 @@ The adding of cities would have to happen after or before the ants are on tour.
     If we add a significant amount of new nodes, it might be helpful to reinitialize the entire graph. 
 
 
+### improvements
+If i had more time i would have liked to make the data more illustrative. Saving all results of all iterations, to show in a 3d graph the average paths for each combination. additionally this could be expanded to handle other tsps as well. 
