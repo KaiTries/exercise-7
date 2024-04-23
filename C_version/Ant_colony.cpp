@@ -8,19 +8,31 @@
 #include "ant.h"
 #include "environment.h"
 
-void display_progress_and_results(int current_iteration, int total_iterations, double best_distance, double alpha, double beta, double rho) {
+void display_progress_and_results(int current_iteration, 
+int total_iterations, 
+double best_distance, 
+double best_alpha, 
+double best_beta, 
+double best_rho,
+double alpha,
+double beta,
+double rho) {
     std::cout << "\r" << std::flush;
 
     double percentage = 100.0 * current_iteration / total_iterations;
 
     int bar_width = 50;
     int pos = bar_width * (current_iteration / static_cast<double>(total_iterations));
-    std::cout << "[" << std::string(pos, '=') << ">" << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "%";
-
-    std::cout << " Best Distance: " << best_distance << " (α=" << alpha << ", β=" << beta << ", ρ=" << rho << ")" << std::flush;
+    std::string arrow = ">";
+    if (current_iteration == total_iterations) {
+        std::cout << "[" << std::string(pos, '=') << "] " << std::fixed << std::setprecision(2) << percentage << "%";
+    } else {
+        std::cout << "[" << std::string(pos, '=') << arrow << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "% ";
+    }
+    std::cout << " Current Parameters: (α=" << alpha << ", β=" << beta << ", ρ=" << rho << ")" << std::flush;
+    std::cout << " Best Distance: " << best_distance << " (α=" << best_alpha << ", β=" << best_beta << ", ρ=" << best_rho << ")" << std::flush;
 
     if (current_iteration == total_iterations) {
-        std::cout << "[" << std::string(pos - 1, '=') << std::string(bar_width - pos - 1, ' ') << "] " << std::fixed << std::setprecision(2) << percentage << "%";
         std::cout << std::endl; // Move to the next line at the end of the process
     }
 }
@@ -97,7 +109,7 @@ int main() {
                         beta_best = beta;
                         rho_best = rho;
                     }
-                    display_progress_and_results(i,iterations_per_level,best_distance,alpha_best,beta_best,rho_best);
+                    display_progress_and_results(i,iterations_per_level,best_distance,alpha_best,beta_best,rho_best,alpha,beta,rho);
                 }
             }
         }
