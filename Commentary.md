@@ -5,6 +5,21 @@ It logs the initial pheromone of the current colony. Other than that it will upd
 I am running multiple runs per configuration, because due to computational limitations I cannot run larger colonies / longer iterations. So I am subject to larger deviations. 
 To counteract this I am running the same configuration multiple times.
 
+## Optimizations
+Due to the nature of the problem, the computer has to do a lot of computations on vectors. So I implemented most of the vital parts with numpy to utilize vectorized operations.
+Additionally I precomputed some aspects as the space / time tradeoff was worth it. I significantly reduced the computation time this way.
+
+### Ant
+In the ant i realized that I can precompute the entire probability matrix for each run. Since the distances are static either way, we can easily just have the distance heuristic precomputed.
+Additionally, the pheromones only change after an iteration, so for each run() cycle it stays the same. That means we can use numpy to directly compute the probability for each edge at once.
+This is done in the precompute_probability_matrix() method. Because we need each probability either way it is also not a waste to do it this way. 
+
+Also since we now have the probabilities in a numpy array we can collect the next node through vectorized numpy operations as well, this is done in the select_path() method.
+
+### Environment
+In the environment I unpack the tsplib95 problem and create two numpy arrays. One array for the distances and one array for the pheromone levels. With these two numpy arrays we can do all computations
+efficiently. The initialization is not that import for the overall performance. Overall for performance the ant is much more vital since most of the computation happens there. Nevertheless the update_pheromone_map()
+function gets called frequently as well. Here we can utilize vectorized computation for the evaporation. 
 
 ## Task 3
 I tested the different variations empirically. The different combinations were:
