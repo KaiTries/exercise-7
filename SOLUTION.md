@@ -26,6 +26,11 @@ function gets called frequently as well. Here we can utilize vectorized computat
 ## Optimizations - C++
 Because it was still slow i decided to rewrite the source code in c++. To try out the c++ version either just start the executable in the release package or compile like this:
 
+### Task 1.1
+The initialize_pheromone_map() for initializing pheromone trails based on the ACO algorithm was implemented 
+[here](C_version/environment.cpp#L66).
+
+
 ## HOW TO RUN
 ### Compile and build yourself
 ```bash
