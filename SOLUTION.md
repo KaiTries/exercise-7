@@ -103,7 +103,7 @@ The shortest path that i found used a beta of 1.5 which is also lower than expec
 
 ### How does the evaporation rate rho affect the performance?
 Rho is the parameter that decides how much pheromone evaporates between tours. So a higher Rho means the pheromones evaporate a lot and the results of the last tour have less influence over current decisions. A lower Rho means, that
-paths explored in the last tour will still have a lot of pheromone deposited on them and therefore a higher probability to be chosen again. 
+paths explored in the last tour will still have a lot of pheromone deposited on them and therefore a higher probability to be chosen again. If Rho is one the ants are basically memory less, since all the pheromones instantly evaporate, if rho is one then it does not matter what alpha is.
 * Lower Rho values mean higher base importance of pheromone
 * Higher Rho values mean less base importance of pheromone
 
