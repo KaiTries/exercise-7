@@ -72,20 +72,33 @@ Beta does the same just for the distance.
 Ofcourse the challange here is to find the sweet spot, where we explore all relevant trails and do not get stuck on non-optimal paths, but once we have found an optimal path wil stay on it.
 Through experimenting I have found that staying on the lower side of alpha values is a bit more reliant, since even though it might take longer to find a good path, the risk of getting stuck on a less than optimal path is much lower.
 
+The shortest path that i found also had an alpha value of 1. Indicating, that this value helps to find a good balance of exploration and still staying on the best paths.
+
 #### Beta
 * Lower Beta values mean less importance of closer nodes. 
 * Higher Beta values mean we go for the closest node more often.
 
-While it at first seems reasonable to go to closer nodes because then the path is shorter, this can then lead to much longer paths once all the close edges are used up. This is why it is important to sometimes use a longer edge first, so that 
-an overall shorter path can be created. Through experimenting I found a neutral value to work the best for me (so 3-4).
+While it at first seems reasonable to go to closer nodes because then the path is shorter, this can then lead to much longer paths once all the close edges are used up. This is why it is important to sometimes use a longer edge first, so that an overall shorter path can be created.
 
-### How does the evaporation rae rho affect the performance?
+The shortest path that i found used a beta of 1.5 which is also lower than expected (since standard is 2 - 5). While this in my case seemed to be the value that gave the best result on how the distance between nodes should be valued, since my tests are not that large, it could be due to chance. 
+
+### How does the evaporation rate rho affect the performance?
 Rho is the parameter that decides how much pheromone evaporates between tours. So a higher Rho means the pheromones evaporate a lot and the results of the last tour have less influence over current decisions. A lower Rho means, that
 paths explored in the last tour will still have a lot of pheromone deposited on them and therefore a higher probability to be chosen again. 
 * Lower Rho values mean higher base importance of pheromone
 * Higher Rho values mean less base importance of pheromone
 
 Since in the path selection the pheromone level of the path is taken to the power of alpha, a higher pheromone level will have similar effects as a higher alpha.
+
+With my shortest path, It was found using a rho of 0.4. This is again just slightly under the standard of 0.5. Indicating, that it was helpful that the pheromone evaporated just a little bit slower.
+
+### Shorest Path
+The overall shortest path that i found was 10712 with the values: alpha = 1, beta = 1.5, rho = 0.4. 
+This shows that the ants relied both on the pheromone and the distance between the nodes. Since the beta is just 0.5 larger, it means that the ants relied a little bit more on the distance between nodes than on the pheromone between them. But since the evaporation rate is lower than usual and the difference between alpha and beta is not that large, overall the ants seem to have found that both pheromones and the distance between nodes are rhoughly as important as eachother. 
+
+![Interactive Configuration](gif_1.gif)
+
+
 
 #### How would you modify your implementation in orer to apply ACO to DTSP?
 If cities were to be added and removed at run-time, I would have to restructure the code to allow nodes to be added and removed. Additionally whenever a new node gets added there will be n - 1 new edges and whenever a node removed there will be n -1 edges removed.
