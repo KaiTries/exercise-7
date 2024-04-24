@@ -131,6 +131,10 @@ I have also achieved a 10733 with: alpha = 1.1, beta = 6, and p = 0,4.
 
 ![Image](/static/10733.png)
 
+I let it run one more time over night with the best parameters that I found with the new strategy below and got a 10661.
+![Image](/static/10661.png)
+
+
 ### Change of Strategy
 ![Image](/static/newStrat.png)
 I realized that just going through iterations and only collecting the best distance just puts me in the crosshair of chance. That is why I added also a display for the best average distance and the alpha, beta, and rho used to achieve it. Then i decreased the iterations that the ants ran but in increased the amount of times a combination is run. Now each Colony goes through 20 iterations but does so 50 times on the same settings. This way I can get a more robust reading of the effectiveness of the combinations. 
